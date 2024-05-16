@@ -1,0 +1,42 @@
+version: "3.8"
+name: jack
+services:
+
+  postgrest:
+    image: postgrest/postgrest:latest
+    hostname: postgrest
+    ports:
+      - ${PGREST_PORT}:3000
+    environment:
+      PGRST_DB_URI: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DATABASE}
+      PGRST_DB_SCHEMA: ${PGREST_DB_SCHEMA}
+      PGRST_DB_ANON_ROLE: ${POSTGRES_USER}
+    depends_on:
+      - postgres
+    networks:
+      - jack
+
+  postgres:
+    image: postgres:16
+    hostname: postgres
+    restart: always
+    ports:
+      - ${POSTGRES_PUBLIC_PORT}:5432
+    environment:
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DATABASE}
+    volumes:
+#       - ${POSTGRES_PATH}:/var/lib/postgresql/data
+      - postgres:/var/lib/postgresql/data
+    networks:
+      - jack
+
+networks:
+  jack:
+
+volumes:
+  postgres:
+
+
