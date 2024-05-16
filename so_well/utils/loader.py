@@ -5,7 +5,25 @@ from sqlalchemy.exc import SQLAlchemyError
 from so_well.models import Address, Locality, Voter, db
 from .logging import logger
 
-def insert_address(row):
+BATCH_SIZE = 500  # Number of records to insert per transaction
+
+def insert_address(row, session):
+    existing_address = session.query(Address).filter_by(
+        house_number=row['HOUSE_NUMBER'],
+        house_number_suffix=row['HOUSENUMBERSUFFIX'],
+        street_name=row['STREET_NAME'],
+        street_type=row['STREETTYPECODENAME'],
+        direction=row['DIRECTION'],
+        post_direction=row['POST_DIRECTION'],
+        apt_num=row['APT_NUM'],
+        city=row['CITY'],
+        state=row['STATE'],
+        zip=row['ZIP']
+    ).first()
+
+    if existing_address:
+        return existing_address.id
+
     try:
         address = Address(
             house_number=row['HOUSE_NUMBER'],
@@ -21,15 +39,25 @@ def insert_address(row):
             created_at=datetime.utcnow(),
             updated_at=datetime.utcnow()
         )
-        db.session.add(address)
-        db.session.flush()
+        session.add(address)
+        session.flush()
         return address.id
     except SQLAlchemyError as e:
-        db.session.rollback()
+        session.rollback()
         logger.error(f"Error inserting address: {str(e)}")
         return None
 
-def insert_locality(row):
+def insert_locality(row, session):
+    existing_locality = session.query(Locality).filter_by(
+        locality_code=row['LOCALITY_CODE'],
+        locality_name=row['LOCALITYNAME'],
+        precinct_code=row['PRECINCT_CODE_VALUE'],
+        precinct_name=row['PRECINCTNAME']
+    ).first()
+
+    if existing_locality:
+        return existing_locality.id
+
     try:
         locality = Locality(
             locality_code=row['LOCALITY_CODE'],
@@ -39,15 +67,22 @@ def insert_locality(row):
             created_at=datetime.utcnow(),
             updated_at=datetime.utcnow()
         )
-        db.session.add(locality)
-        db.session.flush()
+        session.add(locality)
+        session.flush()
         return locality.id
     except SQLAlchemyError as e:
-        db.session.rollback()
+        session.rollback()
         logger.error(f"Error inserting locality: {str(e)}")
         return None
 
-def insert_voter(row, residence_address_id, mailing_address_id, locality_id):
+def insert_voter(row, residence_address_id, mailing_address_id, locality_id, session):
+    existing_voter = session.query(Voter).filter_by(
+        identification_number=row['IDENTIFICATION_NUMBER']
+    ).first()
+
+    if existing_voter:
+        return
+
     try:
         voter = Voter(
             identification_number=row['IDENTIFICATION_NUMBER'],
@@ -66,9 +101,9 @@ def insert_voter(row, residence_address_id, mailing_address_id, locality_id):
             created_at=datetime.utcnow(),
             updated_at=datetime.utcnow()
         )
-        db.session.add(voter)
+        session.add(voter)
     except SQLAlchemyError as e:
-        db.session.rollback()
+        session.rollback()
         logger.error(f"Error inserting voter: {str(e)}")
 
 def load_data(file_path='data/Registered_Voter_List.csv'):
@@ -76,39 +111,64 @@ def load_data(file_path='data/Registered_Voter_List.csv'):
     inserted_addresses = 0
     inserted_localities = 0
     inserted_voters = 0
+    skipped_addresses = 0
+    skipped_localities = 0
+    skipped_voters = 0
     errors = 0
 
     try:
-        with open(file_path, 'r') as csvfile:
+        with open(file_path, 'r', encoding='utf-8', errors='replace') as csvfile:
             reader = csv.DictReader(csvfile)
-            for row in reader:
-                residence_address_id = insert_address(row)
-                mailing_address_id = insert_address(row) if row['MAILING_ADDRESS_LINE_1'] else None
-                locality_id = insert_locality(row)
+            batch_records = []
+            for i, row in enumerate(reader, start=1):
+                batch_records.append(row)
 
-                if residence_address_id:
-                    inserted_addresses += 1
-                else:
-                    errors += 1
+                if i % BATCH_SIZE == 0:
+                    process_batch(batch_records, inserted_addresses, inserted_localities, inserted_voters, skipped_addresses, skipped_localities, skipped_voters, errors)
+                    batch_records = []  # Reset batch
 
-                if locality_id:
-                    inserted_localities += 1
-                else:
-                    errors += 1
+            # Process remaining records
+            if batch_records:
+                process_batch(batch_records, inserted_addresses, inserted_localities, inserted_voters, skipped_addresses, skipped_localities, skipped_voters, errors)
 
-                if residence_address_id and locality_id:
-                    insert_voter(row, residence_address_id, mailing_address_id, locality_id)
-                    inserted_voters += 1
-                else:
-                    errors += 1
-
-            db.session.commit()
-            logger.info(f"Data loaded successfully - Addresses: {inserted_addresses}, Localities: {inserted_localities}, Voters: {inserted_voters}")
+            logger.info(f"Data loaded successfully - Inserted Addresses: {inserted_addresses}, Inserted Localities: {inserted_localities}, Inserted Voters: {inserted_voters}")
+            logger.info(f"Skipped Addresses: {skipped_addresses}, Skipped Localities: {skipped_localities}, Skipped Voters: {skipped_voters}")
             if errors > 0:
                 logger.error(f"Total Errors: {errors}")
     except Exception as e:
-        db.session.rollback()
         logger.error(f"Error loading data: {str(e)}")
+
+def process_batch(batch_records, inserted_addresses, inserted_localities, inserted_voters, skipped_addresses, skipped_localities, skipped_voters, errors):
+    session = db.session()
+    try:
+        for row in batch_records:
+            residence_address_id = insert_address(row, session)
+            if residence_address_id:
+                inserted_addresses += 1
+            else:
+                skipped_addresses += 1
+
+            mailing_address_id = insert_address(row, session) if row['MAILING_ADDRESS_LINE_1'] else None
+
+            locality_id = insert_locality(row, session)
+            if locality_id:
+                inserted_localities += 1
+            else:
+                skipped_localities += 1
+
+            if residence_address_id and locality_id:
+                insert_voter(row, residence_address_id, mailing_address_id, locality_id, session)
+                inserted_voters += 1
+            else:
+                skipped_voters += 1
+
+        session.commit()
+        logger.info(f"Processed batch - Inserted Addresses: {inserted_addresses}, Inserted Localities: {inserted_localities}, Inserted Voters: {inserted_voters}")
+    except Exception as e:
+        session.rollback()
+        logger.error(f"Error processing batch: {str(e)}")
+    finally:
+        session.close()
 
 if __name__ == "__main__":
     load_data()
