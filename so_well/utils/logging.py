@@ -1,4 +1,5 @@
-# so_well/utils/__init__.py
+# so_well/utils/logging.py
+
 import logging
 import os
 import time

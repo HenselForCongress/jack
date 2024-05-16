@@ -1,13 +1,17 @@
 # so_well/__init__.py
 import os
 from flask import Flask
-from .utils.logging import configure_logger, logger
+from .utils import configure_logger, logger, loader
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from .models import db, migrate
+from sqlalchemy_utils import database_exists, create_database
 
 # Setup Database and Migration
-db = SQLAlchemy()
-migrate = Migrate()
+#db = SQLAlchemy()
+#migrate = Migrate()
+
+
 
 def begin_era():
     """Create and configure an instance of the Flask application."""
@@ -29,6 +33,11 @@ def begin_era():
 
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'default-secret-key')
+
+    # Check if the database exists and create it if it doesn't
+    if not database_exists(app.config['SQLALCHEMY_DATABASE_URI']):
+        create_database(app.config['SQLALCHEMY_DATABASE_URI'])
+        logger.info(f"Database created at {app.config['SQLALCHEMY_DATABASE_URI']}")
 
     # Apply the blueprints to the app
     from so_well.app import bp as main_bp

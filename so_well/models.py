@@ -1,14 +1,19 @@
 # so_well/models.py
-from . import db
+#from . import db
 from sqlalchemy.orm import relationship
 from sqlalchemy_utils import database_exists, create_database, TSVectorType
 from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Boolean, func, Text
 from sqlalchemy.dialects.postgresql import UUID
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 import uuid
 
+db = SQLAlchemy()
+migrate = Migrate()
+
 # Creating the Database if it does not exist (ensure your DB URI includes correct creds)
-if not database_exists(db.engine.url):
-    create_database(db.engine.url)
+#if not database_exists(db.engine.url):
+ #   create_database(db.engine.url)
 
 def generate_uuid():
     return str(uuid.uuid4())

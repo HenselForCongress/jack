@@ -1,9 +1,13 @@
 # run.py
 import os
-from so_well import begin_era, logger
+from so_well import begin_era, logger, loader
 
 def main():
-    app = begin_era()  # Begin a new era which setups Flask app
+    app = begin_era()
+
+    with app.app_context():
+        loader.load_data('data/Registered_Voter_List.csv')
+
     logger.info("🚀 Starting Donation Reporter")
     try:
         # Hosting the Flask application
