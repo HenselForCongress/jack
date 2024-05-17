@@ -35,7 +35,7 @@ class Voter(db.Model):
     __table_args__ = {'schema': 'electorate'}
 
     # Voter Information
-    identification_number = db.Column(db.String(50), primary_key=True, comment="Voter's unique identification number")
+    identification_number = db.Column(db.BigInteger, primary_key=True, comment="Voter's unique identification number")
     last_name = db.Column(db.String(50), index=True, nullable=False, comment="Voter's last name")
     first_name = db.Column(db.String(50), index=True, nullable=False, comment="Voter's first name")
     middle_name = db.Column(db.String(50), nullable=True, comment="Voter's middle name")
@@ -119,3 +119,11 @@ class Locality(db.Model):
 
     def __repr__(self):
         return f"<Locality(Name='{self.locality_name}', Precinct='{self.precinct_name}')>"
+
+
+
+
+
+
+
+

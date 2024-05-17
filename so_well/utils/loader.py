@@ -4,8 +4,9 @@ from datetime import datetime
 from sqlalchemy.exc import SQLAlchemyError
 from so_well.models import Address, Locality, Voter, db
 from .logging import logger
+from .validator import preprocess_csv  # Import the validator module
 
-BATCH_SIZE = 500  # Number of records to insert per transaction
+BATCH_SIZE = 1000  # Adjust batch size to optimize performance
 
 def insert_address(row, session):
     existing_address = session.query(Address).filter_by(
@@ -108,6 +109,11 @@ def insert_voter(row, residence_address_id, mailing_address_id, locality_id, ses
 
 def load_data(file_path='data/Registered_Voter_List.csv'):
     logger.info("Loading data...")
+
+    # Preprocess the CSV file
+    processed_file_path = 'data/Processed_Voter_List.csv'
+    preprocess_csv(file_path, processed_file_path)
+
     inserted_addresses = 0
     inserted_localities = 0
     inserted_voters = 0
@@ -117,8 +123,11 @@ def load_data(file_path='data/Registered_Voter_List.csv'):
     errors = 0
 
     try:
-        with open(file_path, 'r', encoding='utf-8', errors='replace') as csvfile:
+        with open(processed_file_path, 'r', encoding='utf-8') as csvfile:
             reader = csv.DictReader(csvfile)
+            # Print column names for debugging
+            logger.info(f"CSV Columns: {reader.fieldnames}")
+
             batch_records = []
             for i, row in enumerate(reader, start=1):
                 batch_records.append(row)
@@ -142,25 +151,29 @@ def process_batch(batch_records, inserted_addresses, inserted_localities, insert
     session = db.session()
     try:
         for row in batch_records:
-            residence_address_id = insert_address(row, session)
-            if residence_address_id:
-                inserted_addresses += 1
-            else:
-                skipped_addresses += 1
+            try:
+                residence_address_id = insert_address(row, session)
+                if residence_address_id:
+                    inserted_addresses += 1
+                else:
+                    skipped_addresses += 1
 
-            mailing_address_id = insert_address(row, session) if row['MAILING_ADDRESS_LINE_1'] else None
+                mailing_address_id = insert_address(row, session) if row['MAILING_ADDRESS_LINE_1'] else None
 
-            locality_id = insert_locality(row, session)
-            if locality_id:
-                inserted_localities += 1
-            else:
-                skipped_localities += 1
+                locality_id = insert_locality(row, session)
+                if locality_id:
+                    inserted_localities += 1
+                else:
+                    skipped_localities += 1
 
-            if residence_address_id and locality_id:
-                insert_voter(row, residence_address_id, mailing_address_id, locality_id, session)
-                inserted_voters += 1
-            else:
-                skipped_voters += 1
+                if residence_address_id and locality_id:
+                    insert_voter(row, residence_address_id, mailing_address_id, locality_id, session)
+                    inserted_voters += 1
+                else:
+                    skipped_voters += 1
+            except KeyError as e:
+                errors += 1
+                logger.error(f"Error processing row {row}: Missing column {e}")
 
         session.commit()
         logger.info(f"Processed batch - Inserted Addresses: {inserted_addresses}, Inserted Localities: {inserted_localities}, Inserted Voters: {inserted_voters}")
