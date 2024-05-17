@@ -20,7 +20,9 @@ depends_on = None
 def upgrade():
     # Create materialized view for electorate.voter_lookup
     op.execute("""
-    CREATE MATERIALIZED VIEW electorate.voter_lookup AS
+    CREATE MATERIALIZED VIEW electorate.voter_lookup
+    TABLESPACE pg_default
+    AS
     SELECT
         v.identification_number,
         v.last_name,
@@ -29,17 +31,24 @@ def upgrade():
         v.status,
         a.house_number,
         a.street_name,
-        a.zip,
+        SUBSTRING(a.zip FROM 1 FOR 5) AS zip,
         a.city,
-        to_tsvector('english', coalesce(v.first_name, '') || ' ' || coalesce(v.middle_name, '')) AS full_name_searchable,
-        to_tsvector('english', coalesce(a.house_number, '') || ' ' || coalesce(a.house_number_suffix, '') || ' ' ||
-                              coalesce(a.street_name, '') || ' ' || coalesce(a.street_type, '') || ' ' ||
-                              coalesce(a.direction, '') || ' ' || coalesce(a.post_direction, '') || ' ' ||
-                              coalesce(a.apt_num, '')) AS address_searchable,
-        to_tsvector('english', a.city) AS city_searchable,
-        to_tsvector('simple', a.zip) AS zip_searchable
-    FROM electorate.voters v
-    JOIN electorate.address a ON v.residence_address_id = a.id;
+        to_tsvector('english'::regconfig, (COALESCE(v.first_name, ''::character varying)::text || ' '::text) || COALESCE(v.middle_name, ''::character varying)::text) AS full_name_searchable,
+        to_tsvector('english'::regconfig, (
+            COALESCE(a.house_number, ''::character varying)::text || ' '::text ||
+            COALESCE(a.house_number_suffix, ''::character varying)::text || ' '::text ||
+            COALESCE(a.street_name, ''::character varying)::text || ' '::text ||
+            COALESCE(a.street_type, ''::character varying)::text || ' '::text ||
+            COALESCE(a.direction, ''::character varying)::text || ' '::text ||
+            COALESCE(a.post_direction, ''::character varying)::text || ' '::text ||
+            COALESCE(a.apt_num, ''::character varying)::text)) AS address_searchable,
+        to_tsvector('english'::regconfig, a.city::text) AS city_searchable,
+        to_tsvector('simple'::regconfig, SUBSTRING(a.zip FROM 1 FOR 5)::text) AS zip_searchable
+    FROM
+        electorate.voters v
+    JOIN
+        electorate.address a ON v.residence_address_id = a.id
+    WITH DATA;
     """)
 
 # Create indexes on the materialized view

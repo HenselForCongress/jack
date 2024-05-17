@@ -120,10 +120,58 @@ class Locality(db.Model):
     def __repr__(self):
         return f"<Locality(Name='{self.locality_name}', Precinct='{self.precinct_name}')>"
 
+class VoterLookup(db.Model):
+    __tablename__ = 'voter_lookup'
+    __table_args__ = {'schema': 'electorate'}
+
+    id = db.Column(db.Integer, primary_key=True)
+    identification_number = db.Column(db.String(50))
+    last_name = db.Column(db.String(50))
+    first_name = db.Column(db.String(50))
+    middle_name = db.Column(db.String(50))
+    status = db.Column(db.String(50))
+    house_number = db.Column(db.String(50))
+    street_name = db.Column(db.String(50))
+    zip = db.Column(db.String(5))
+    city = db.Column(db.String(50))
+    full_name_searchable = db.Column(db.Text)
+    address_searchable = db.Column(db.Text)
+    city_searchable = db.Column(db.Text)
+    zip_searchable = db.Column(db.Text)
+
+    def __repr__(self):
+        return f"<VoterLookup(Identification number='{self.identification_number}', Name='{self.first_name} {self.last_name}')>"
 
 
+class SignatureMatch(db.Model):
+    __tablename__ = 'signature_matches'
+    __table_args__ = {'schema': 'signatures'}
 
+    id = db.Column(db.Integer, primary_key=True)
+    voter_id = db.Column(db.String, nullable=False, comment="Voter ID")
+    sheet_number = db.Column(db.String(50), nullable=False, comment="Sheet Number")
+    row_number = db.Column(db.String(50), nullable=False, comment="Row Number")
+    last_four_ssn = db.Column(db.String(4), nullable=False, comment="Last four digits of SSN")
+    first_name = db.Column(db.String(50), nullable=False, comment="Voter's first name")
+    last_name = db.Column(db.String(50), nullable=False, comment="Voter's last name")
+    house_number = db.Column(db.String(50), nullable=False, comment="House number of residence")
+    street_prefix = db.Column(db.String(50), nullable=True, comment="Street prefix direction")
+    street_name = db.Column(db.String(50), nullable=False, comment="Street name of residence")
+    street_suffix = db.Column(db.String(50), nullable=True, comment="Street suffix direction")
+    city = db.Column(db.String(50), nullable=False, comment="City of residence")
+    state = db.Column(db.String(50), nullable=False, comment="State of residence")
+    zip = db.Column(db.String(10), nullable=False, comment="ZIP code of residence")
+    created_at = db.Column(db.DateTime, default=db.func.now())
 
+class AuditLog(db.Model):
+    __tablename__ = 'audit_log'
+    __table_args__ = {'schema': 'security'}
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_email = db.Column(db.String(255), nullable=False)
+    action = db.Column(db.String(255), nullable=False)
+    details = db.Column(db.Text, nullable=False)
+    timestamp = db.Column(db.DateTime, default=db.func.now(), nullable=False)
 
 
 
