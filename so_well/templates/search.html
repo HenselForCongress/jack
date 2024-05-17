@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Voter Search</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container">
+    <h1>Voter Search</h1>
+    <form id="search-form" method="post">
+        <div class="form-group">
+            <label for="first-name">First Name</label>
+            <input type="text" class="form-control" id="first-name" name="first_name">
+        </div>
+        <div class="form-group">
+            <label for="last-name">Last Name</label>
+            <input type="text" class="form-control" id="last-name" name="last_name">
+        </div>
+        <div class="form-group">
+            <label for="house-number">House Number</label>
+            <input type="text" class="form-control" id="house-number" name="house_number">
+        </div>
+        <div class="form-group">
+            <label for="street-name">Street Name</label>
+            <input type="text" class="form-control" id="street-name" name="street_name">
+        </div>
+        <div class="form-group">
+            <label for="direction">Street Direction</label>
+            <input type="text" class="form-control" id="direction" name="direction">
+        </div>
+        <div class="form-group">
+            <label for="post-direction">Street Suffix</label>
+            <input type="text" class="form-control" id="post-direction" name="post_direction">
+        </div>
+        <div class="form-group">
+            <label for="apt-num">Apartment Number</label>
+            <input type="text" class="form-control" id="apt-num" name="apt_num">
+        </div>
+        <div class="form-group">
+            <label for="city">City</label>
+            <input type="text" class="form-control" id="city" name="city">
+        </div>
+        <div class="form-group">
+            <label for="zip">ZIP Code</label>
+            <input type="text" class="form-control" id="zip" name="zip">
+        </div>
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+    <h3>Results</h3>
+    <table class="table" id="results-table">
+        <thead>
+            <tr>
+                <th scope="col">First Name</th>
+                <th scope="col">Last Name</th>
+                <th scope="col">House Number</th>
+                <th scope="col">Street Name</th>
+                <th scope="col">City</th>
+                <th scope="col">ZIP Code</th>
+                <th scope="col">Relevance Rank</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#search-form').on('submit', function(event) {
+            event.preventDefault();
+            axios.post('/search', $(this).serialize())
+                .then(response => {
+                    const results = response.data;
+                    const resultsTableBody = $('#results-table tbody');
+                    resultsTableBody.empty();
+                    results.forEach(result => {
+                        resultsTableBody.append(`
+                            <tr>
+                                <td>${result.first_name}</td>
+                                <td>${result.last_name}</td>
+                                <td>${result.house_number}</td>
+                                <td>${result.street_name}</td>
+                                <td>${result.city}</td>
+                                <td>${result.zip}</td>
+                                <td>${result.rank}</td>
+                            </tr>
+                        `);
+                    });
+                })
+                .catch(error => console.error('Error:', error));
+        });
+    });
+</script>
+</body>
+</html>
