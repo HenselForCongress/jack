@@ -23,7 +23,7 @@ def begin_era():
         password = os.getenv('POSTGRES_PASSWORD')
         # host = os.getenv('POSTGRES_HOST')
         host = 'localhost'
-        port = 5431
+        port = 5430
         # port = os.getenv('POSTGRES_PORT')
         database = os.getenv('POSTGRES_DATABASE')
         app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://{username}:{password}@{host}:{port}/{database}'
