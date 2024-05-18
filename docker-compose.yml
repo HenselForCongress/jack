@@ -1,42 +1,53 @@
-version: "3.8"
+#version: "3.8"
 name: jack
 services:
 
-  postgrest:
-    image: postgrest/postgrest:latest
-    hostname: postgrest
-    ports:
-      - ${PGREST_PORT}:3000
-    environment:
-      PGRST_DB_URI: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DATABASE}
-      PGRST_DB_SCHEMA: ${PGREST_DB_SCHEMA}
-      PGRST_DB_ANON_ROLE: ${POSTGRES_USER}
-    depends_on:
-      - postgres
-    networks:
-      - jack
-
-  postgres:
-    image: postgres:16
-    hostname: postgres
+  supagres:
+    image: supabase/postgres
+    container_name: supagres
+    hostname: supagres
     restart: always
     ports:
-      - ${POSTGRES_PUBLIC_PORT}:5432
+      - 5430:5432
     environment:
-      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_HOST: 0.0.0.0
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DATABASE}
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
     volumes:
-#       - ${POSTGRES_PATH}:/var/lib/postgresql/data
-      - postgres:/var/lib/postgresql/data
+      - supagres:/var/lib/postgresql/data
     networks:
       - jack
+
+  blank_space:
+    build: .
+    command: python run.py
+    restart: always
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+      - POSTGRES_DATABASE=${POSTGRES_DATABASE}
+      - SECRET_KEY=${SECRET_KEY}
+      - LOG_LEVEL=${LOG_LEVEL}
+      - LOG_VERBOSE=${LOG_VERBOSE}
+      - LOG_FILES=${LOG_FILES}
+      - ZERO_TRUST=${ZERO_TRUST}
+    depends_on:
+      - supagres
+    ports:
+      - "5000:5000"
+    networks:
+      - jack
+
 
 networks:
   jack:
 
 volumes:
   postgres:
+  supagres:
 
 
