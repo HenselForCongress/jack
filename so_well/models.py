@@ -120,6 +120,7 @@ class Locality(db.Model):
     def __repr__(self):
         return f"<Locality(Name='{self.locality_name}', Precinct='{self.precinct_name}')>"
 
+
 class VoterLookup(db.Model):
     __tablename__ = 'voter_lookup'
     __table_args__ = {'schema': 'electorate'}
@@ -131,13 +132,15 @@ class VoterLookup(db.Model):
     middle_name = db.Column(db.String(50))
     status = db.Column(db.String(50))
     house_number = db.Column(db.String(50))
-    street_name = db.Column(db.String(50))
+    house_number_suffix = db.Column(db.String(50))  # Adding house_number_suffix
     direction = db.Column(db.String(50))
+    street_name = db.Column(db.String(50))
+    street_type = db.Column(db.String(100))  # Adding street_type
     post_direction = db.Column(db.String(50))
     apt_num = db.Column(db.String(50))
-    zip = db.Column(db.String(5))
     city = db.Column(db.String(50))
     state = db.Column(db.String(50))
+    zip = db.Column(db.String(10))
     full_name_searchable = db.Column(db.Text)
     address_searchable = db.Column(db.Text)
     city_searchable = db.Column(db.Text)
@@ -145,7 +148,6 @@ class VoterLookup(db.Model):
 
     def __repr__(self):
         return f"<VoterLookup(Identification number='{self.identification_number}', Name='{self.first_name} {self.last_name}')>"
-
 
 class SignatureMatch(db.Model):
     __tablename__ = 'signature_matches'

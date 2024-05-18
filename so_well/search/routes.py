@@ -1,11 +1,17 @@
 # so_well/search/routes.py
-from flask import Blueprint, jsonify, request, g
+from flask import Blueprint, jsonify, request
 from sqlalchemy import func, or_
 from ..models import db, VoterLookup
 from ..utils import logger
 from .utils import sanitize_query
 
 search_bp = Blueprint('search', __name__)
+
+# Calculate combined rank
+def get_combined_rank(name_rank, address_rank):
+    name_rank = name_rank if name_rank is not None else 0
+    address_rank = address_rank if address_rank is not None else 0
+    return (name_rank + address_rank) / 2 if name_rank or address_rank else 0
 
 @search_bp.route('/search', methods=['GET'])
 def search():
@@ -17,54 +23,63 @@ def search():
         if value:
             criteria[field] = sanitize_query(value.strip())
 
-    # Logging the search criteria
     logger.info(f"Search criteria: {criteria}")
 
-    # Construct full-text search queries
-    first_name_query = criteria.get('first_name', '').replace('*', ':*')
-    last_name_query = criteria.get('last_name', '').replace('*', ':*')
-    address_query = criteria.get('address', '').replace('*', ':*')
-    city_query = criteria.get('city', '').replace('*', ':*')
-    state_query = criteria.get('state', '').replace('*', ':*')
-    zip_query = criteria.get('zip', '').replace('*', ':*')
-    apt_query = criteria.get('apt_num', '').replace('*', ':*')
-
-    # Prepare the search query with ranking based on the presence of first name, last name, address, etc.
-    query = db.session.query(
-        VoterLookup,
-        func.ts_rank_cd(VoterLookup.full_name_searchable, func.to_tsquery(first_name_query)).label('name_rank'),
-        func.ts_rank_cd(VoterLookup.address_searchable, func.to_tsquery(address_query)).label('address_rank')
-    ).filter(
-        or_(
-            VoterLookup.full_name_searchable.op('@@')(func.to_tsquery(first_name_query)),
-            VoterLookup.full_name_searchable.op('@@')(func.to_tsquery(last_name_query))
-        ),
-        VoterLookup.address_searchable.op('@@')(func.to_tsquery(address_query)) if address_query else True,
-        VoterLookup.city_searchable.op('@@')(func.to_tsquery(city_query)) if city_query else True,
-        VoterLookup.zip_searchable.op('@@')(func.to_tsquery(zip_query)) if zip_query else True
-    ).order_by(
-        func.ts_rank_cd(VoterLookup.full_name_searchable, func.to_tsquery(first_name_query)).desc(),
-        func.ts_rank_cd(VoterLookup.address_searchable, func.to_tsquery(address_query)).desc()
-    )
+    first_name_query = criteria.get('first_name', '')
+    last_name_query = criteria.get('last_name', '')
+    address_query = criteria.get('address', '')
+    city_query = criteria.get('city', '')
+    state_query = criteria.get('state', '')
+    zip_query = criteria.get('zip', '')
 
     try:
+        # Using pg_trgm similarity for partial matches and ts_rank_cd for relevance
+        query = db.session.query(
+            VoterLookup,
+            func.ts_rank_cd(VoterLookup.full_name_searchable, func.plainto_tsquery('english', first_name_query)).label('name_rank'),
+            func.ts_rank_cd(VoterLookup.address_searchable, func.plainto_tsquery(address_query)).label('address_rank'),
+            func.similarity(VoterLookup.first_name, first_name_query).label('first_name_similarity'),
+            func.similarity(VoterLookup.middle_name, first_name_query).label('middle_name_similarity'),
+            func.similarity(VoterLookup.last_name, last_name_query).label('last_name_similarity')
+        ).filter(
+            or_(
+                VoterLookup.full_name_searchable.op('@@')(func.plainto_tsquery('english', first_name_query)),
+                VoterLookup.full_name_searchable.op('@@')(func.plainto_tsquery('english', last_name_query)),
+                func.similarity(VoterLookup.first_name, first_name_query) > 0.1,
+                func.similarity(VoterLookup.middle_name, first_name_query) > 0.1,
+                func.similarity(VoterLookup.last_name, last_name_query) > 0.1
+            ),
+            VoterLookup.address_searchable.op('@@')(func.plainto_tsquery(address_query)) if address_query else True,
+            VoterLookup.city_searchable.op('@@')(func.plainto_tsquery(city_query)) if city_query else True,
+            VoterLookup.zip_searchable.op('@@')(func.plainto_tsquery(zip_query)) if zip_query else True
+        ).order_by(
+            func.ts_rank_cd(VoterLookup.full_name_searchable, func.plainto_tsquery('english', first_name_query)).desc(),
+            func.similarity(VoterLookup.first_name, first_name_query).desc(),
+            func.similarity(VoterLookup.middle_name, first_name_query).desc(),
+            func.similarity(VoterLookup.last_name, last_name_query).desc(),
+            func.ts_rank_cd(VoterLookup.address_searchable, func.plainto_tsquery(address_query)).desc()
+        ).limit(10)
+
+        logger.debug(f"Search query: {query}")
+
         results = query.all()
 
-        # Logging the search query
-        logger.debug(f"Search query: {results}")
-
+        # Formatted search results
         data = [{
             "id": voter.id,
             "first_name": voter.first_name,
+            "middle_name": voter.middle_name,
             "last_name": voter.last_name,
-            "address": f"{voter.house_number} {voter.direction or ''} {voter.street_name} {voter.post_direction or ''}".strip(),  # Ensure address order is correct
+            "address": f"{voter.house_number or ''} {voter.house_number_suffix or ''} {voter.direction or ''} {voter.street_name or ''} {voter.street_type or ''} {voter.post_direction or ''}".strip(),
             "apt_num": voter.apt_num,
             "city": voter.city,
-            "state": voter.state or "VA",
-            "zip": voter.zip,
-            "name_rank": name_rank,
-            "address_rank": address_rank
-        } for voter, name_rank, address_rank in results]
+            "state": voter.state,
+            "zip": voter.zip[:5],
+            "rank": get_combined_rank(voter.name_rank, voter.address_rank)
+        } for voter, voter.name_rank, voter.address_rank, voter.first_name_similarity, voter.middle_name_similarity, voter.last_name_similarity in results]
+
+        # Log the formatted results
+        logger.debug(f"Formatted search results: {data}")
 
         return jsonify(data)
     except Exception as e:

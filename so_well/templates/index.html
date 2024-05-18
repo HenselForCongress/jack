@@ -11,34 +11,35 @@
     <div class="container">
         <h1>Voter Verification</h1>
         <form id="search-form" class="form-inline mb-4" onkeypress="searchOnEnter(event)">
-                <div class="form-group mb-2">
-                    <label for="first_name" class="mr-2">First Name: </label>
-                    <input type="text" id="first_name" name="first_name" class="form-control mr-4">
-                </div>
-                <div class="form-group mb-2">
-                    <label for="last_name" class="mr-2">Last Name: </label>
-                    <input type="text" id="last_name" name="last_name" class="form-control mr-4">
-                </div>
-                <div class="form-group mb-2">
-                    <label for="address" class="mr-2">Address: </label>
-                    <input type="text" id="address" name="address" class="form-control mr-4">
-                </div>
-                <div class="form-group mb-2">
-                    <label for="city" class="mr-2">City: </label>
-                    <input type="text" id="city" name="city" class="form-control mr-4">
-                </div>
-                <div class="form-group mb-2">
-                    <label for="state" class="mr-2">State: </label>
-                    <input type="text" id="state" name="state" class="form-control mr-4" value="VA">
-                </div>
-                <div class="form-group mb-2">
-                    <label for="zip" class="mr-2">ZIP: </label>
-                    <input type="text" id="zip" name="zip" class="form-control mr-4">
-                </div>
-                <div class="form-group mb-2">
-                    <label for="apt_num" class="mr-2">Apt #: </label>
-                    <input type="text" id="apt_num" name="apt_num" class="form-control mr-4">
-                </div>
+            <!-- Form Fields -->
+            <div class="form-group mb-2">
+                <label for="first_name" class="mr-2">First Name: </label>
+                <input type="text" id="first_name" name="first_name" class="form-control mr-4">
+            </div>
+            <div class="form-group mb-2">
+                <label for="last_name" class="mr-2">Last Name: </label>
+                <input type="text" id="last_name" name="last_name" class="form-control mr-4">
+            </div>
+            <div class="form-group mb-2">
+                <label for="address" class="mr-2">Address: </label>
+                <input type="text" id="address" name="address" class="form-control mr-4">
+            </div>
+            <div class="form-group mb-2">
+                <label for="city" class="mr-2">City: </label>
+                <input type="text" id="city" name="city" class="form-control mr-4">
+            </div>
+            <div class="form-group mb-2">
+                <label for="state" class="mr-2">State: </label>
+                <input type="text" id="state" name="state" class="form-control mr-4" value="VA">
+            </div>
+            <div class="form-group mb-2">
+                <label for="zip" class="mr-2">ZIP: </label>
+                <input type="text" id="zip" name="zip" class="form-control mr-4">
+            </div>
+            <div class="form-group mb-2">
+                <label for="apt_num" class="mr-2">Apt #: </label>
+                <input type="text" id="apt_num" name="apt_num" class="form-control mr-4">
+            </div>
             <button type="button" class="btn btn-primary mb-2" onclick="searchVoters()">Search</button>
             <button type="button" class="btn btn-secondary mb-2 ml-2" onclick="toggleAdvancedSearch()">View More Fields</button>
         </form>
@@ -53,6 +54,7 @@
                 <thead>
                     <tr>
                         <th>First Name</th>
+                        <th>Middle Name</th>
                         <th>Last Name</th>
                         <th>Address</th>
                         <th>Apt Number</th>
@@ -79,18 +81,18 @@
                     resultsTableBody.innerHTML = '';  // Clear previous results
 
                     data.forEach(result => {
-                        const address = `${result.house_number} ${result.direction || ''} ${result.street_name} ${result.post_direction || ''} ${result.street_type || ''}`.trim();
-                        const rank = (result.name_rank + result.address_rank) / 2;
+                        const rank = result.rank || 0;
                         const row = `
                             <tr>
                                 <td>${result.first_name}</td>
+                                <td>${result.middle_name || ''}</td>
                                 <td>${result.last_name}</td>
-                                <td>${address}</td>
+                                <td>${result.address}</td> <!-- Directly use result.address -->
                                 <td>${result.apt_num || ''}</td>
                                 <td>${result.city}</td>
                                 <td>${result.state}</td>
                                 <td>${result.zip}</td>
-                                <td>${rank}</td>
+                                <td>${rank.toFixed(2)}</td>  <!-- Ensure rank has two decimal places -->
                             </tr>
                         `;
                         resultsTableBody.insertAdjacentHTML('beforeend', row);
@@ -101,11 +103,7 @@
 
         function toggleAdvancedSearch() {
             const advancedSearch = document.getElementById('advanced-search');
-            if (advancedSearch.style.display === 'none') {
-                advancedSearch.style.display = 'block';
-            } else {
-                advancedSearch.style.display = 'none';
-            }
+            advancedSearch.style.display = advancedSearch.style.display === 'none' ? 'block' : 'none';
         }
 
         function searchOnEnter(event) {
@@ -128,4 +126,3 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 </body>
 </html>
-
