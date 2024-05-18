@@ -124,7 +124,7 @@ class VoterLookup(db.Model):
     __tablename__ = 'voter_lookup'
     __table_args__ = {'schema': 'electorate'}
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
     identification_number = db.Column(db.String(50))
     last_name = db.Column(db.String(50))
     first_name = db.Column(db.String(50))
@@ -132,8 +132,12 @@ class VoterLookup(db.Model):
     status = db.Column(db.String(50))
     house_number = db.Column(db.String(50))
     street_name = db.Column(db.String(50))
+    direction = db.Column(db.String(50))
+    post_direction = db.Column(db.String(50))
+    apt_num = db.Column(db.String(50))
     zip = db.Column(db.String(5))
     city = db.Column(db.String(50))
+    state = db.Column(db.String(50))
     full_name_searchable = db.Column(db.Text)
     address_searchable = db.Column(db.Text)
     city_searchable = db.Column(db.Text)

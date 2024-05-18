@@ -42,6 +42,9 @@ def begin_era():
     from so_well.app import bp as main_bp
     app.register_blueprint(main_bp, url_prefix='/')
 
+    from .search.routes import search_bp
+    app.register_blueprint(search_bp)
+
     # Initialize database and migration
     db.init_app(app)
     migrate.init_app(app, db)
