@@ -149,25 +149,6 @@ class VoterLookup(db.Model):
     def __repr__(self):
         return f"<VoterLookup(Identification number='{self.identification_number}', Name='{self.first_name} {self.last_name}')>"
 
-class SignatureMatch(db.Model):
-    __tablename__ = 'signature_matches'
-    __table_args__ = {'schema': 'signatures'}
-
-    id = db.Column(db.Integer, primary_key=True)
-    voter_id = db.Column(db.String, nullable=False, comment="Voter ID")
-    sheet_number = db.Column(db.String(50), nullable=False, comment="Sheet Number")
-    row_number = db.Column(db.String(50), nullable=False, comment="Row Number")
-    last_four_ssn = db.Column(db.String(4), nullable=False, comment="Last four digits of SSN")
-    first_name = db.Column(db.String(50), nullable=False, comment="Voter's first name")
-    last_name = db.Column(db.String(50), nullable=False, comment="Voter's last name")
-    house_number = db.Column(db.String(50), nullable=False, comment="House number of residence")
-    street_prefix = db.Column(db.String(50), nullable=True, comment="Street prefix direction")
-    street_name = db.Column(db.String(50), nullable=False, comment="Street name of residence")
-    street_suffix = db.Column(db.String(50), nullable=True, comment="Street suffix direction")
-    city = db.Column(db.String(50), nullable=False, comment="City of residence")
-    state = db.Column(db.String(50), nullable=False, comment="State of residence")
-    zip = db.Column(db.String(10), nullable=False, comment="ZIP code of residence")
-    created_at = db.Column(db.DateTime, default=db.func.now())
 
 class AuditLog(db.Model):
     __tablename__ = 'audit_log'

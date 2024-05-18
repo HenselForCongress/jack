@@ -8,10 +8,6 @@ from .models import db, migrate
 from .middleware import cloudflare_auth_middleware
 from sqlalchemy_utils import database_exists, create_database
 
-# Setup Database and Migration
-# db = SQLAlchemy()
-# migrate = Migrate()
-
 def begin_era():
     """Create and configure an instance of the Flask application."""
     app = Flask(__name__)
@@ -44,6 +40,10 @@ def begin_era():
 
     from .search.routes import search_bp
     app.register_blueprint(search_bp)
+
+    # Import and register the signatures blueprint
+    from .signatures.routes import signatures_bp
+    app.register_blueprint(signatures_bp)
 
     # Initialize database and migration
     db.init_app(app)
