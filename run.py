@@ -5,8 +5,8 @@ from so_well import begin_era, logger, loader
 def main():
     app = begin_era()
 
-    #with app.app_context():
-   #     loader.load_data('data/Registered_Voter_List.csv')
+    with app.app_context():
+        loader.load_data('data/Registered_Voter_List.csv')
 
     logger.info("🚀 Starting Donation Reporter")
     try:

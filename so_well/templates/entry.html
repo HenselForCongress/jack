@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entry Page</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Results Table -->
+            <div class="col-8">
+                <table class="table table-striped" id="results-table">
+                    <thead>
+                        <tr>
+                            <th>First Name</th>
+                            <th>Middle Name</th>
+                            <th>Last Name</th>
+                            <th>Address</th>
+                            <th>City</th>
+                            <th>State</th>
+                            <th>Zip Code</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+            <!-- Search Form -->
+            <div class="col-4">
+                <form id="search-form">
+                    <div class="form-group">
+                        <label for="first-name">First Name</label>
+                        <input type="text" class="form-control" id="first-name">
+                    </div>
+                    <div class="form-group">
+                        <label for="last-name">Last Name</label>
+                        <input type="text" class="form-control" id="last-name">
+                    </div>
+                    <div class="form-group">
+                        <label for="house-number">House Number</label>
+                        <input type="text" class="form-control" id="house-number">
+                    </div>
+                    <div class="form-group">
+                        <label for="house-number-suffix">House Number Suffix</label>
+                        <input type="text" class="form-control" id="house-number-suffix">
+                    </div>
+                    <div class="form-group">
+                        <label for="street-name">Street Name</label>
+                        <input type="text" class="form-control" id="street-name">
+                    </div>
+                    <div class="form-group">
+                        <label for="street-type">Street Type</label>
+                        <input type="text" class="form-control" id="street-type">
+                    </div>
+                    <div class="form-group">
+                        <label for="direction">Direction</label>
+                        <input type="text" class="form-control" id="direction">
+                    </div>
+                    <div class="form-group">
+                        <label for="post-direction">Post Direction</label>
+                        <input type="text" class="form-control" id="post-direction">
+                    </div>
+                    <div class="form-group">
+                        <label for="apartment-number">Apartment Number</label>
+                        <input type="text" class="form-control" id="apartment-number">
+                    </div>
+                    <div class="form-group">
+                        <label for="city">City</label>
+                        <input type="text" class="form-control" id="city">
+                    </div>
+                    <div class="form-group">
+                        <label for="state">State</label>
+                        <input type="text" class="form-control" id="state">
+                    </div>
+                    <div class="form-group">
+                        <label for="zip-code">Zip Code</label>
+                        <input type="text" class="form-control" id="zip-code">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Search</button>
+                    <button type="button" class="btn btn-danger" id="not-found">Not Found</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Match Modal -->
+    <div class="modal fade" id="match-modal" tabindex="-1" role="dialog" aria-labelledby="match-modal-label" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="match-modal-label">Match Voter</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="match-form">
+                        <div class="form-group">
+                            <label for="sheet-number">Sheet Number</label>
+                            <input type="number" class="form-control" id="sheet-number" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="row-number">Row Number</label>
+                            <input type="number" class="form-control" id="row-number" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="date-collected">Date Collected</label>
+                            <input type="date" class="form-control" id="date-collected" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="last-4">Last 4 of SSN</label>
+                            <input type="text" class="form-control" id="last-4">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Record</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Not Found Modal -->
+    <div class="modal fade" id="not-found-modal" tabindex="-1" role="dialog" aria-labelledby="not-found-modal-label" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="not-found-modal-label">Voter Not Found</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="not-found-form">
+                        <div class="form-group">
+                            <label for="nf-sheet-number">Sheet Number</label>
+                            <input type="number" class="form-control" id="nf-sheet-number" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="nf-row-number">Row Number</label>
+                            <input type="number" class="form-control" id="nf-row-number" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="nf-date-signed">Date Signed</label>
+                            <input type="date" class="form-control" id="nf-date-signed" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="nf-first-name">First Name</label>
+                            <input type="text" class="form-control" id="nf-first-name">
+                        </div>
+                        <div class="form-group">
+                            <label for="nf-middle-name">Middle Name</label>
+                            <input type="text" class="form-control" id="nf-middle-name">
+                        </div>
+                        <div class="form-group">
+                            <label for="nf-last-name">Last Name</label>
+                            <input type="text" class="form-control" id="nf-last-name">
+                        </div>
+                        <div class="form-group">
+                            <label for="nf-address">Address</label>
+                            <input type="text" class="form-control" id="nf-address">
+                        </div>
+                        <div class="form-group">
+                            <label for="nf-apartment-number">Apartment Number</label>
+                            <input type="text" class="form-control" id="nf-apartment-number">
+                        </div>
+                        <div class="form-group">
+                            <label for="nf-city">City</label>
+                            <input type="text" class="form-control" id="nf-city">
+                        </div>
+                        <div class="form-group">
+                            <label for="nf-state">State</label>
+                            <input type="text" class="form-control" id="nf-state">
+                        </div>
+                        <div class="form-group">
+                            <label for="nf-zip-code">Zip Code</label>
+                            <input type="text" class="form-control" id="nf-zip-code">
+                        </div>
+                        <div class="form-group">
+                            <label for="nf-last-4">Last 4 of SSN</label>
+                            <input type="text" class="form-control" id="nf-last-4">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Record</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src="{{ url_for('static', filename='js/entry.js') }}"></script>
+</body>
+</html>

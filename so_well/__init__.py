@@ -43,6 +43,10 @@ def begin_era():
     from .signatures.routes import signatures_bp
     app.register_blueprint(signatures_bp)
 
+    # Import and register the new advanced_search blueprint
+    from .advanced_search.routes import advanced_search_bp
+    app.register_blueprint(advanced_search_bp)
+
     # Initialize database and migration
     db.init_app(app)
     migrate.init_app(app, db)

@@ -6,6 +6,7 @@ from .utils import logger
 from .middleware import cloudflare_auth_middleware
 from .search import search
 
+
 bp = Blueprint('main', __name__)
 
 @bp.before_request
@@ -21,3 +22,9 @@ def before_request():
 @bp.route('/')
 def home():
     return render_template('index.html')
+
+@bp.route('/entry')
+def entry():
+    return render_template('entry.html')
+
+
