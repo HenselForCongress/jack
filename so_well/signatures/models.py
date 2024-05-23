@@ -17,7 +17,8 @@ class SignatureMatch(db.Model):
     state = db.Column(db.String(2), nullable=False)
     zip = db.Column(db.String(10), nullable=False)
     sheet_number = db.Column(db.Integer, nullable=False)
-    row_number = db.Column(db.Integer, nullable=False, check_column=db.CheckConstraint('row_number >= 1 AND row_number <= 12'))  # Keep the check constraint
+    row_number = db.Column(db.Integer, nullable=False)  # Keep the check constraint
+    #row_number = db.Column(db.Integer, nullable=False, check_column=db.CheckConstraint('row_number >= 1 AND row_number <= 12'))  # Keep the check constraint
     last_four_ssn = db.Column(db.String(4), nullable=True)
     date_collected = db.Column(db.Date, nullable=False, default=db.func.now())
     created_at = db.Column(db.DateTime(timezone=True), nullable=False, default=db.func.now())

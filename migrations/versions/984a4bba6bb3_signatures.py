@@ -7,7 +7,8 @@ Create Date: 2024-05-17 22:29:34.135529
 """
 from alembic import op
 import sqlalchemy as sa
-
+import sqlalchemy_utils
+from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision = '984a4bba6bb3'
@@ -17,167 +18,172 @@ depends_on = None
 
 
 def upgrade():
+    # Create schema for signatures
+    op.execute("CREATE SCHEMA IF NOT EXISTS signatures;")
+
+
+
+    # Create circulators table
+    op.create_table('circulators',
+        sa.Column('id', sa.Integer(), primary_key=True, autoincrement=True),
+        sa.Column('full_name', sa.String(length=255), nullable=False),
+        sa.Column('address_1', sa.String(length=255), nullable=False),
+        sa.Column('address_2', sa.String(length=255)),
+        sa.Column('city', sa.String(length=255), nullable=False),
+        sa.Column('state', sa.String(length=2), nullable=False),
+        sa.Column('zip', sa.String(length=10), nullable=False),
+        sa.Column('created_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.func.now()),
+        sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.func.now(), onupdate=sa.func.now()),
+        schema='signatures'
+    )
+
+    # Create notaries table
+    op.create_table('notaries',
+        sa.Column('id', sa.Integer(), primary_key=True, autoincrement=True),
+        sa.Column('full_name', sa.String(length=255), nullable=False),
+        sa.Column('registration_number', sa.String(length=255), nullable=False),
+        sa.Column('commission_expiration', sa.Date(), nullable=False),
+        sa.Column('commission_state', sa.String(length=2), nullable=False),
+        sa.Column('created_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.func.now()),
+        sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.func.now(), onupdate=sa.func.now()),
+        schema='signatures'
+    )
+
+    # Create batches table
+    op.create_table('batches',
+        sa.Column('id', sa.Integer(), primary_key=True, autoincrement=True),
+        sa.Column('date_shipped', sa.Date(), nullable=False),
+        sa.Column('carrier', sa.String(length=255), nullable=False),
+        sa.Column('tracking_number', sa.String(length=255), nullable=False),
+        sa.Column('ship_date', sa.Date(), nullable=False),
+        sa.Column('status', sa.String(length=255), nullable=False),
+        sa.Column('arrival_date', sa.Date(), nullable=False),
+        sa.Column('created_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.func.now()),
+        sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.func.now(), onupdate=sa.func.now()),
+        schema='signatures'
+    )
+
+    # Create sheets table
+    op.create_table('sheets',
+        sa.Column('id', sa.Integer(), primary_key=True, autoincrement=True),
+        sa.Column('collector_id', sa.Integer(), nullable=False),
+        sa.Column('notary_id', sa.Integer(), nullable=False),
+        sa.Column('submission_id', sa.Integer(), nullable=False),
+        sa.Column('status', sa.String(length=50), nullable=False),
+        sa.Column('created_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.func.now()),
+        sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.func.now(), onupdate=sa.func.now()),
+        sa.ForeignKeyConstraint(['collector_id'], ['signatures.circulators.id']),
+        sa.ForeignKeyConstraint(['notary_id'], ['signatures.notaries.id']),
+        sa.ForeignKeyConstraint(['submission_id'], ['signatures.batches.id']),
+        schema='signatures'
+    )
+
+    # Create sheet_status table in meta schema
+    op.create_table('sheet_status',
+        sa.Column('status', sa.String(length=15), primary_key=True),
+        sa.Column('created_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.func.now()),
+        sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.func.now(), onupdate=sa.func.now()),
+        sa.Column('description', sa.String(), nullable=True),
+        sa.Column('order', sa.Integer(), nullable=True),
+        sa.UniqueConstraint('status', name='sheet_status_unique'),
+        schema='meta'
+    )
+
+    # Create signature_status table in meta schema
+    op.create_table('signature_status',
+        sa.Column('status', sa.String(length=15), primary_key=True),
+        sa.Column('created_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.func.now()),
+        sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.func.now(), onupdate=sa.func.now()),
+        sa.Column('description', sa.String(), nullable=True),
+        sa.Column('order', sa.Integer(), nullable=True),
+        sa.UniqueConstraint('status', name='signature_status_unique'),
+        schema='meta'
+    )
+
+    # Create collected table in signatures schema with foreign key constraints
+    op.create_table('collected',
+        sa.Column('id', sa.Integer(), primary_key=True, autoincrement=True),
+        sa.Column('sheet_id', sa.Integer(), nullable=False),
+        sa.Column('row_id', sa.Integer(), nullable=False),
+        sa.Column('voter_id', sa.String(length=50), nullable=True),
+        sa.Column('first_name', sa.String(length=50), nullable=True),
+        sa.Column('last_name', sa.String(length=50), nullable=True),
+        sa.Column('full_street_address', sa.Text(), nullable=True),
+        sa.Column('apt', sa.String(length=50), nullable=True),
+        sa.Column('city', sa.String(length=50), nullable=True),
+        sa.Column('state', sa.String(length=50), nullable=True),
+        sa.Column('zip', sa.String(length=5), nullable=True),
+        sa.Column('last_4', sa.String(length=4), nullable=True),
+        sa.Column('status', sa.String(length=50), nullable=False),
+        sa.Column('date_collected', sa.Date(), nullable=False, server_default=sa.func.current_date()),
+        sa.Column('created_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.func.now()),
+        sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.func.now(), onupdate=sa.func.now()),
+        sa.CheckConstraint('row_id >= 1 AND row_id <= 12', name='collected_row_number_check'),
+        sa.ForeignKeyConstraint(['sheet_id'], ['signatures.sheets.id'], name='collected_sheets_fk'),
+        sa.ForeignKeyConstraint(['status'], ['meta.signature_status.status'], name='collected_signature_status_fk'),
+        sa.ForeignKeyConstraint(['voter_id'], ['electorate.voters.identification_number'], name='collected_voters_fk'),
+        schema='signatures'
+    )
+
+    # Create triggers
     op.execute("""
-    CREATE SCHEMA IF NOT EXISTS signatures;
+    CREATE TRIGGER update_circulators_updated_at
+    BEFORE UPDATE ON signatures.circulators
+    FOR EACH ROW
+    EXECUTE FUNCTION meta.update_updated_at_column();
+    """)
+
+    op.execute("""
+    CREATE TRIGGER update_notaries_updated_at
+    BEFORE UPDATE ON signatures.notaries
+    FOR EACH ROW
+    EXECUTE FUNCTION meta.update_updated_at_column();
+    """)
+
+    op.execute("""
+    CREATE TRIGGER update_batches_updated_at
+    BEFORE UPDATE ON signatures.batches
+    FOR EACH ROW
+    EXECUTE FUNCTION meta.update_updated_at_column();
+    """)
+
+    op.execute("""
+    CREATE TRIGGER update_sheet_status_updated_at
+    BEFORE UPDATE ON meta.sheet_status
+    FOR EACH ROW
+    EXECUTE FUNCTION meta.update_updated_at_column();
+    """)
+
+    op.execute("""
+    CREATE TRIGGER update_signature_status_updated_at
+    BEFORE UPDATE ON meta.signature_status
+    FOR EACH ROW
+    EXECUTE FUNCTION meta.update_updated_at_column();
+    """)
+
+    op.execute("""
+    CREATE TRIGGER update_collected_updated_at
+    BEFORE UPDATE ON signatures.collected
+    FOR EACH ROW
+    EXECUTE FUNCTION meta.update_updated_at_column();
     """)
 
 
-
-
-    # ### commands auto generated by Alembic - please adjust! ###
-    op.create_table('address',
-    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False, comment='Auto incrementing primary key'),
-    sa.Column('house_number', sa.String(length=50), nullable=False, comment='House number of residence'),
-    sa.Column('house_number_suffix', sa.String(length=3), nullable=True, comment='House number suffix'),
-    sa.Column('street_name', sa.String(length=50), nullable=False, comment='Street name of residence'),
-    sa.Column('street_type', sa.String(length=100), nullable=True, comment='Street type (e.g., Ave, Blvd)'),
-    sa.Column('direction', sa.String(length=50), nullable=True, comment='Street prefix direction (e.g., N, S)'),
-    sa.Column('post_direction', sa.String(length=50), nullable=True, comment='Street suffix direction'),
-    sa.Column('apt_num', sa.String(length=50), nullable=True, comment='Apartment number'),
-    sa.Column('city', sa.String(length=50), nullable=False, comment='City of residence'),
-    sa.Column('state', sa.String(length=50), nullable=False, comment='State of residence'),
-    sa.Column('zip', sa.String(length=10), nullable=False, comment='ZIP code of residence'),
-    sa.Column('full_address_searchable', sqlalchemy_utils.types.ts_vector.TSVectorType(), nullable=True),
-    sa.Column('created_at', sa.DateTime(), nullable=False, comment='Record creation date'),
-    sa.Column('updated_at', sa.DateTime(), nullable=False, comment='Record last update date'),
-    sa.PrimaryKeyConstraint('id'),
-    schema='electorate'
-    )
-    with op.batch_alter_table('address', schema='electorate') as batch_op:
-        batch_op.create_index(batch_op.f('ix_electorate_address_city'), ['city'], unique=False)
-        batch_op.create_index(batch_op.f('ix_electorate_address_street_name'), ['street_name'], unique=False)
-        batch_op.create_index(batch_op.f('ix_electorate_address_zip'), ['zip'], unique=False)
-
-    op.create_table('locality',
-    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False, comment='Auto incrementing primary key'),
-    sa.Column('locality_code', sa.String(length=3), nullable=False, comment='Locality FIPS code'),
-    sa.Column('locality_name', sa.String(length=255), nullable=False, comment='Name of locality'),
-    sa.Column('precinct_code', sa.String(length=255), nullable=True, comment='Code number for precinct'),
-    sa.Column('precinct_name', sa.String(length=255), nullable=True, comment='Name of precinct'),
-    sa.Column('town_code', sa.String(length=255), nullable=True, comment='Code number for town'),
-    sa.Column('town_name', sa.String(length=255), nullable=True, comment='Name of town'),
-    sa.Column('town_prec_code', sa.String(length=255), nullable=True, comment='Code number for town precinct'),
-    sa.Column('town_prec_name', sa.String(length=255), nullable=True, comment='Name of town precinct'),
-    sa.Column('congressional_district', sa.String(length=255), nullable=True, comment='Congressional District'),
-    sa.Column('state_senate_district', sa.String(length=255), nullable=True, comment='State Senate District'),
-    sa.Column('house_delegates_district', sa.String(length=255), nullable=True, comment='House of Delegates District'),
-    sa.Column('super_district_code', sa.String(length=255), nullable=True, comment='Super District code'),
-    sa.Column('super_district_name', sa.String(length=255), nullable=True, comment='Super District name'),
-    sa.Column('created_at', sa.DateTime(), nullable=False, comment='Record creation date'),
-    sa.Column('updated_at', sa.DateTime(), nullable=False, comment='Record last update date'),
-    sa.PrimaryKeyConstraint('id'),
-    schema='electorate'
-    )
-    op.create_table('voter_lookup',
-    sa.Column('id', sa.UUID(), nullable=False),
-    sa.Column('identification_number', sa.String(length=50), nullable=True),
-    sa.Column('last_name', sa.String(length=50), nullable=True),
-    sa.Column('first_name', sa.String(length=50), nullable=True),
-    sa.Column('middle_name', sa.String(length=50), nullable=True),
-    sa.Column('status', sa.String(length=50), nullable=True),
-    sa.Column('house_number', sa.String(length=50), nullable=True),
-    sa.Column('house_number_suffix', sa.String(length=50), nullable=True),
-    sa.Column('direction', sa.String(length=50), nullable=True),
-    sa.Column('street_name', sa.String(length=50), nullable=True),
-    sa.Column('street_type', sa.String(length=100), nullable=True),
-    sa.Column('post_direction', sa.String(length=50), nullable=True),
-    sa.Column('apt_num', sa.String(length=50), nullable=True),
-    sa.Column('city', sa.String(length=50), nullable=True),
-    sa.Column('state', sa.String(length=50), nullable=True),
-    sa.Column('zip', sa.String(length=10), nullable=True),
-    sa.Column('full_name_searchable', sa.Text(), nullable=True),
-    sa.Column('address_searchable', sa.Text(), nullable=True),
-    sa.Column('city_searchable', sa.Text(), nullable=True),
-    sa.Column('zip_searchable', sa.Text(), nullable=True),
-    sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('id'),
-    schema='electorate'
-    )
-    op.create_table('audit_log',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('user_email', sa.String(length=255), nullable=False),
-    sa.Column('action', sa.String(length=255), nullable=False),
-    sa.Column('details', sa.Text(), nullable=False),
-    sa.Column('timestamp', sa.DateTime(), nullable=False),
-    sa.PrimaryKeyConstraint('id'),
-    schema='security'
-    )
-    op.create_table('users',
-    sa.Column('user_id', sa.UUID(), nullable=False, comment='Unique user ID'),
-    sa.Column('email', sa.String(length=255), nullable=False, comment="User's email address"),
-    sa.Column('is_active', sa.Boolean(), nullable=True, comment='Is the user active?'),
-    sa.Column('last_login', sa.DateTime(), nullable=True, comment='Last login time'),
-    sa.Column('created_at', sa.DateTime(), nullable=True, comment='Record creation date'),
-    sa.Column('updated_at', sa.DateTime(), nullable=True, comment='Record last update date'),
-    sa.PrimaryKeyConstraint('user_id'),
-    sa.UniqueConstraint('email'),
-    schema='security'
-    )
-    op.create_table('signature_matches',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('voter_id', sa.String(), nullable=False, comment='Voter ID'),
-    sa.Column('sheet_number', sa.String(length=50), nullable=False, comment='Sheet Number'),
-    sa.Column('row_number', sa.String(length=50), nullable=False, comment='Row Number'),
-    sa.Column('last_four_ssn', sa.String(length=4), nullable=False, comment='Last four digits of SSN'),
-    sa.Column('first_name', sa.String(length=50), nullable=False, comment="Voter's first name"),
-    sa.Column('last_name', sa.String(length=50), nullable=False, comment="Voter's last name"),
-    sa.Column('house_number', sa.String(length=50), nullable=False, comment='House number of residence'),
-    sa.Column('street_prefix', sa.String(length=50), nullable=True, comment='Street prefix direction'),
-    sa.Column('street_name', sa.String(length=50), nullable=False, comment='Street name of residence'),
-    sa.Column('street_suffix', sa.String(length=50), nullable=True, comment='Street suffix direction'),
-    sa.Column('city', sa.String(length=50), nullable=False, comment='City of residence'),
-    sa.Column('state', sa.String(length=50), nullable=False, comment='State of residence'),
-    sa.Column('zip', sa.String(length=10), nullable=False, comment='ZIP code of residence'),
-    sa.Column('created_at', sa.DateTime(), nullable=True),
-    sa.PrimaryKeyConstraint('id'),
-    schema='signatures'
-    )
-    op.create_table('voters',
-    sa.Column('identification_number', sa.BigInteger(), nullable=False, comment="Voter's unique identification number"),
-    sa.Column('last_name', sa.String(length=50), nullable=False, comment="Voter's last name"),
-    sa.Column('first_name', sa.String(length=50), nullable=False, comment="Voter's first name"),
-    sa.Column('middle_name', sa.String(length=50), nullable=True, comment="Voter's middle name"),
-    sa.Column('suffix', sa.String(length=50), nullable=True, comment="Voter's name suffix"),
-    sa.Column('gender', sa.String(length=1), nullable=True, comment="Voter's gender"),
-    sa.Column('dob', sa.Date(), nullable=True, comment="Voter's date of birth"),
-    sa.Column('registration_date', sa.Date(), nullable=True, comment="Voter's registration date"),
-    sa.Column('effective_date', sa.Date(), nullable=True, comment="Voter's effective date for the precinct"),
-    sa.Column('status', sa.String(length=255), nullable=True, comment="Voter's registration status"),
-    sa.Column('residence_address_id', sa.Integer(), nullable=False, comment='Foreign key to residence address'),
-    sa.Column('mailing_address_id', sa.Integer(), nullable=True, comment='Foreign key to mailing address'),
-    sa.Column('locality_id', sa.Integer(), nullable=False, comment='Foreign key to locality'),
-    sa.Column('full_name_searchable', sqlalchemy_utils.types.ts_vector.TSVectorType(), nullable=True),
-    sa.Column('created_at', sa.DateTime(), nullable=False, comment='Record creation date'),
-    sa.Column('updated_at', sa.DateTime(), nullable=False, comment='Record last update date'),
-    sa.ForeignKeyConstraint(['locality_id'], ['electorate.locality.id'], ),
-    sa.ForeignKeyConstraint(['mailing_address_id'], ['electorate.address.id'], ),
-    sa.ForeignKeyConstraint(['residence_address_id'], ['electorate.address.id'], ),
-    sa.PrimaryKeyConstraint('identification_number'),
-    schema='electorate'
-    )
-    with op.batch_alter_table('voters', schema='electorate') as batch_op:
-        batch_op.create_index(batch_op.f('ix_electorate_voters_first_name'), ['first_name'], unique=False)
-        batch_op.create_index(batch_op.f('ix_electorate_voters_last_name'), ['last_name'], unique=False)
-
-    # ### end Alembic commands ###
-
-
 def downgrade():
-    # ### commands auto generated by Alembic - please adjust! ###
-    with op.batch_alter_table('voters', schema='electorate') as batch_op:
-        batch_op.drop_index(batch_op.f('ix_electorate_voters_last_name'))
-        batch_op.drop_index(batch_op.f('ix_electorate_voters_first_name'))
+    # Drop triggers
+    op.execute("DROP TRIGGER IF EXISTS update_circulators_updated_at ON signatures.circulators;")
+    op.execute("DROP TRIGGER IF EXISTS update_notaries_updated_at ON signatures.notaries;")
+    op.execute("DROP TRIGGER IF EXISTS update_batches_updated_at ON signatures.batches;")
+    op.execute("DROP TRIGGER IF EXISTS update_sheet_status_updated_at ON meta.sheet_status;")
+    op.execute("DROP TRIGGER IF EXISTS update_signature_status_updated_at ON meta.signature_status;")
+    op.execute("DROP TRIGGER IF EXISTS update_collected_updated_at ON signatures.collected;")
 
-    op.drop_table('voters', schema='electorate')
-    op.drop_table('signature_matches', schema='signatures')
-    op.drop_table('users', schema='security')
-    op.drop_table('audit_log', schema='security')
-    op.drop_table('voter_lookup', schema='electorate')
-    op.drop_table('locality', schema='electorate')
-    with op.batch_alter_table('address', schema='electorate') as batch_op:
-        batch_op.drop_index(batch_op.f('ix_electorate_address_zip'))
-        batch_op.drop_index(batch_op.f('ix_electorate_address_street_name'))
-        batch_op.drop_index(batch_op.f('ix_electorate_address_city'))
-
-    op.drop_table('address', schema='electorate')
-    # ### end Alembic commands ###
+    # Drop tables
+    op.drop_table('collected', schema='signatures')
+    op.drop_table('signature_status', schema='meta')
+    op.drop_table('sheet_status', schema='meta')
+    op.drop_table('batches', schema='signatures')
+    op.drop_table('notaries', schema='signatures')
+    op.drop_table('circulators', schema='signatures')
+    op.drop_table('sheets', schema='signatures')
+    op.execute("DROP SCHEMA IF EXISTS signatures CASCADE;")
