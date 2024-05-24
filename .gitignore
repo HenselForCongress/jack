@@ -1,0 +1,9 @@
+# Gitignores
+.DS_Store
+.env
+
+
+# Data Set(s)
+data/Registered_Voter_List.csv
+data/*
+archive/*
