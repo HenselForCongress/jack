@@ -1,7 +1,7 @@
 # so_well/search/routes.py
 from flask import Blueprint, jsonify, request
 from sqlalchemy import func, or_
-from ..models import db, VoterLookup
+from ..models import db
 from ..utils import logger
 from .utils import sanitize_query
 

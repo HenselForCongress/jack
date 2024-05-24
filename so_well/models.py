@@ -1,5 +1,4 @@
 # so_well/models.py
-#from . import db
 from sqlalchemy.orm import relationship
 from sqlalchemy_utils import database_exists, create_database, TSVectorType
 from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Boolean, func, Text
@@ -11,14 +10,10 @@ import uuid
 db = SQLAlchemy()
 migrate = Migrate()
 
-# Creating the Database if it does not exist (ensure your DB URI includes correct creds)
-#if not database_exists(db.engine.url):
- #   create_database(db.engine.url)
-
 def generate_uuid():
     return str(uuid.uuid4())
 
-# Entities Schema Models
+# Models
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -33,9 +28,7 @@ class User(db.Model):
 class Voter(db.Model):
     __tablename__ = 'voters'
     __table_args__ = {'schema': 'electorate'}
-
-    # Voter Information
-    identification_number = db.Column(db.BigInteger, primary_key=True, comment="Voter's unique identification number")
+    identification_number = db.Column(db.String(50), primary_key=True, comment="Voter's unique identification number")
     last_name = db.Column(db.String(50), index=True, nullable=False, comment="Voter's last name")
     first_name = db.Column(db.String(50), index=True, nullable=False, comment="Voter's first name")
     middle_name = db.Column(db.String(50), nullable=True, comment="Voter's middle name")
@@ -45,31 +38,21 @@ class Voter(db.Model):
     registration_date = db.Column(db.Date, nullable=True, comment="Voter's registration date")
     effective_date = db.Column(db.Date, nullable=True, comment="Voter's effective date for the precinct")
     status = db.Column(db.String(255), nullable=True, comment="Voter's registration status")
-
-    # Foreign keys to other tables
     residence_address_id = db.Column(db.Integer, db.ForeignKey('electorate.address.id'), nullable=False, comment="Foreign key to residence address")
     mailing_address_id = db.Column(db.Integer, db.ForeignKey('electorate.address.id'), nullable=True, comment="Foreign key to mailing address")
     locality_id = db.Column(db.Integer, db.ForeignKey('electorate.locality.id'), nullable=False, comment="Foreign key to locality")
-
-    # Full-Text Search Columns
     full_name_searchable = db.Column(TSVectorType('first_name', 'last_name', 'middle_name', 'suffix'))
-
-    # Timestamps
     created_at = db.Column(db.DateTime, default=func.now(), nullable=False, comment="Record creation date")
     updated_at = db.Column(db.DateTime, default=func.now(), onupdate=func.now(), nullable=False, comment="Record last update date")
-
-    # Relationships
     residence_address = relationship("Address", foreign_keys=[residence_address_id])
     mailing_address = relationship("Address", foreign_keys=[mailing_address_id])
     locality = relationship("Locality", back_populates="voters")
-
     def __repr__(self):
         return f"<Voter(Identification number='{self.identification_number}', Name='{self.first_name} {self.last_name}')>"
 
 class Address(db.Model):
     __tablename__ = 'address'
     __table_args__ = {'schema': 'electorate'}
-
     id = db.Column(db.Integer, primary_key=True, autoincrement=True, comment="Auto incrementing primary key")
     house_number = db.Column(db.String(50), nullable=False, comment="House number of residence")
     house_number_suffix = db.Column(db.String(3), nullable=True, comment="House number suffix")
@@ -81,21 +64,15 @@ class Address(db.Model):
     city = db.Column(db.String(50), index=True, nullable=False, comment="City of residence")
     state = db.Column(db.String(50), nullable=False, comment="State of residence")
     zip = db.Column(db.String(10), index=True, nullable=False, comment="ZIP code of residence")
-
-    # Full-Text Search Columns
     full_address_searchable = db.Column(TSVectorType('house_number', 'street_name', 'street_type', 'city', 'zip'))
-
-    # Timestamps
     created_at = db.Column(db.DateTime, default=func.now(), nullable=False, comment="Record creation date")
     updated_at = db.Column(db.DateTime, default=func.now(), onupdate=func.now(), nullable=False, comment="Record last update date")
-
     def __repr__(self):
         return f"<Address(City='{self.city}', Street='{self.street_name}', House='{self.house_number}', Apt='{self.apt_num}')>"
 
 class Locality(db.Model):
     __tablename__ = 'locality'
     __table_args__ = {'schema': 'electorate'}
-
     id = db.Column(db.Integer, primary_key=True, autoincrement=True, comment="Auto incrementing primary key")
     locality_code = db.Column(db.String(3), nullable=False, comment="Locality FIPS code")
     locality_name = db.Column(db.String(255), nullable=False, comment="Name of locality")
@@ -110,55 +87,8 @@ class Locality(db.Model):
     house_delegates_district = db.Column(db.String(255), nullable=True, comment="House of Delegates District")
     super_district_code = db.Column(db.String(255), nullable=True, comment="Super District code")
     super_district_name = db.Column(db.String(255), nullable=True, comment="Super District name")
-
-    # Timestamps
     created_at = db.Column(db.DateTime, default=func.now(), nullable=False, comment="Record creation date")
     updated_at = db.Column(db.DateTime, default=func.now(), onupdate=func.now(), nullable=False, comment="Record last update date")
-
     voters = relationship('Voter', back_populates='locality')
-
     def __repr__(self):
         return f"<Locality(Name='{self.locality_name}', Precinct='{self.precinct_name}')>"
-
-
-class VoterLookup(db.Model):
-    __tablename__ = 'voter_lookup'
-    __table_args__ = {'schema': 'electorate'}
-
-    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
-    identification_number = db.Column(db.String(50))
-    last_name = db.Column(db.String(50))
-    first_name = db.Column(db.String(50))
-    middle_name = db.Column(db.String(50))
-    status = db.Column(db.String(50))
-    house_number = db.Column(db.String(50))
-    house_number_suffix = db.Column(db.String(50))  # Adding house_number_suffix
-    direction = db.Column(db.String(50))
-    street_name = db.Column(db.String(50))
-    street_type = db.Column(db.String(100))  # Adding street_type
-    post_direction = db.Column(db.String(50))
-    apt_num = db.Column(db.String(50))
-    city = db.Column(db.String(50))
-    state = db.Column(db.String(50))
-    zip = db.Column(db.String(10))
-    full_name_searchable = db.Column(db.Text)
-    address_searchable = db.Column(db.Text)
-    city_searchable = db.Column(db.Text)
-    zip_searchable = db.Column(db.Text)
-
-    def __repr__(self):
-        return f"<VoterLookup(Identification number='{self.identification_number}', Name='{self.first_name} {self.last_name}')>"
-
-
-class AuditLog(db.Model):
-    __tablename__ = 'audit_log'
-    __table_args__ = {'schema': 'security'}
-
-    id = db.Column(db.Integer, primary_key=True)
-    user_email = db.Column(db.String(255), nullable=False)
-    action = db.Column(db.String(255), nullable=False)
-    details = db.Column(db.Text, nullable=False)
-    timestamp = db.Column(db.DateTime, default=db.func.now(), nullable=False)
-
-
-

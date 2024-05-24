@@ -5,7 +5,18 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Entry Page</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+        .short-input {
+            max-width: 150px;
+        }
+        .half-input {
+            max-width: 300px;
+        }
+        .container-fluid {
+            margin: 20px;
+        }
+    </style>
 </head>
 <body>
     <div class="container-fluid">
@@ -33,54 +44,89 @@
             <!-- Search Form -->
             <div class="col-4">
                 <form id="search-form">
+                    <!-- Full Length Fields -->
                     <div class="form-group">
                         <label for="first-name">First Name</label>
                         <input type="text" class="form-control" id="first-name">
+                    </div>
+                    <div class="form-group">
+                        <label for="middle-name">Middle Name</label>
+                        <input type="text" class="form-control" id="middle-name">
                     </div>
                     <div class="form-group">
                         <label for="last-name">Last Name</label>
                         <input type="text" class="form-control" id="last-name">
                     </div>
                     <div class="form-group">
-                        <label for="house-number">House Number</label>
-                        <input type="text" class="form-control" id="house-number">
-                    </div>
-                    <div class="form-group">
-                        <label for="house-number-suffix">House Number Suffix</label>
-                        <input type="text" class="form-control" id="house-number-suffix">
-                    </div>
-                    <div class="form-group">
                         <label for="street-name">Street Name</label>
                         <input type="text" class="form-control" id="street-name">
                     </div>
+
+                    <!-- Short length fields -->
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="house-number">House Number</label>
+                            <input type="text" class="form-control short-input" id="house-number">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="house-number-suffix">House Number Suffix</label>
+                            <input type="text" class="form-control short-input" id="house-number-suffix">
+                        </div>
+                    </div>
+
+                    <!-- Direction and Post Direction -->
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="direction">Direction</label>
+                            <select class="form-control" id="direction">
+                                <option value="">Select Direction</option>
+                            </select>
+                            <button type="button" class="btn btn-link" id="direction-options-toggle">Toggle Directions</button>
+                            <div id="direction-options" class="d-none"></div>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="post-direction">Post Direction</label>
+                            <select class="form-control" id="post-direction">
+                                <option value="">Select Post Direction</option>
+                            </select>
+                            <button type="button" class="btn btn-link" id="post-direction-options-toggle">Toggle Post Directions</button>
+                            <div id="post-direction-options" class="d-none"></div>
+                        </div>
+                    </div>
+
+                    <!-- Street Type -->
                     <div class="form-group">
                         <label for="street-type">Street Type</label>
-                        <input type="text" class="form-control" id="street-type">
+                        <select class="form-control" id="street-type">
+                            <option value="">Select Street Type</option>
+                        </select>
+                        <button type="button" class="btn btn-link" id="street-type-options-toggle">Toggle Street Types</button>
+                        <div id="street-type-options" class="d-none"></div>
                     </div>
-                    <div class="form-group">
-                        <label for="direction">Direction</label>
-                        <input type="text" class="form-control" id="direction">
-                    </div>
-                    <div class="form-group">
-                        <label for="post-direction">Post Direction</label>
-                        <input type="text" class="form-control" id="post-direction">
-                    </div>
+
                     <div class="form-group">
                         <label for="apartment-number">Apartment Number</label>
-                        <input type="text" class="form-control" id="apartment-number">
+                        <input type="text" class="form-control short-input" id="apartment-number">
                     </div>
-                    <div class="form-group">
-                        <label for="city">City</label>
-                        <input type="text" class="form-control" id="city">
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="city">City</label>
+                            <input type="text" class="form-control half-input" id="city">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="state">State</label>
+                            <select class="form-control" id="state">
+                                <option value="">Select State</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="state">State</label>
-                        <input type="text" class="form-control" id="state">
-                    </div>
+
                     <div class="form-group">
                         <label for="zip-code">Zip Code</label>
-                        <input type="text" class="form-control" id="zip-code">
+                        <input type="text" class="form-control short-input" id="zip-code">
                     </div>
+
                     <button type="submit" class="btn btn-primary">Search</button>
                     <button type="button" class="btn btn-danger" id="not-found">Not Found</button>
                 </form>

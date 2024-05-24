@@ -1,9 +1,74 @@
 $(document).ready(function() {
-    // Submit search form
+    fetchStateOptions();
+    fetchDirectionOptions();
+    fetchStreetTypeOptions();
+
+    // Toggle direction options
+    $('#direction-options-toggle').click(function() {
+        $('#direction-options').toggleClass('d-none');
+    });
+
+    // Toggle post direction options
+    $('#post-direction-options-toggle').click(function() {
+        $('#post-direction-options').toggleClass('d-none');
+    });
+
+    // Toggle street type options
+    $('#street-type-options-toggle').click(function() {
+        $('#street-type-options').toggleClass('d-none');
+    });
+
+    // Fetch states options -> replace state options
+    function fetchStateOptions() {
+        $.ajax({
+            url: '/advanced_search/states', // Assuming this endpoint returns available states
+            method: 'GET',
+            success: function(data) {
+                data.forEach(function(state) {
+                    $('#state').append(`<option value="${state}">${state}</option>`);
+                });
+            }
+        });
+    }
+
+    // Fetch unique direction options
+    function fetchDirectionOptions() {
+        $.ajax({
+            url: '/advanced_search/directions', // Assuming this endpoint returns available directions and their counts
+            method: 'GET',
+            success: function(data) {
+                data.directions.forEach(function(direction) {
+                    $('#direction-options').append(`<div><input type="checkbox" class="direction-option" value="${direction.value}"> ${direction.value} (${direction.count})</div>`);
+                    $('#direction').append(`<option value="${direction.value}">${direction.value}</option>`);
+                });
+
+                data.post_directions.forEach(function(postDirection) {
+                    $('#post-direction-options').append(`<div><input type="checkbox" class="post-direction-option" value="${postDirection.value}"> ${postDirection.value} (${postDirection.count})</div>`);
+                    $('#post-direction').append(`<option value="${postDirection.value}">${postDirection.value}</option>`);
+                });
+            }
+        });
+    }
+
+    // Fetch unique street type options
+    function fetchStreetTypeOptions() {
+        $.ajax({
+            url: '/advanced_search/street_types', // Assuming this endpoint returns available street types and their counts
+            method: 'GET',
+            success: function(data) {
+                data.street_types.forEach(function(streetType) {
+                    $('#street-type-options').append(`<div><input type="checkbox" class="street-type-option" value="${streetType.value}"> ${streetType.value} (${streetType.count})</div>`);
+                    $('#street-type').append(`<option value="${streetType.value}">${streetType.value}</option>`);
+                });
+            }
+        });
+    }
+
     $('#search-form').on('submit', function(e) {
         e.preventDefault();
         let formData = {
             'first_name': $('#first-name').val(),
+            'middle_name': $('#middle-name').val(),
             'last_name': $('#last-name').val(),
             'house_number': $('#house-number').val(),
             'house_number_suffix': $('#house-number-suffix').val(),
@@ -14,7 +79,7 @@ $(document).ready(function() {
             'apartment_number': $('#apartment-number').val(),
             'city': $('#city').val(),
             'state': $('#state').val(),
-            'zip_code': $('#zip-code').val()
+            'zip_code': $('#zip-code').val().substring(0, 5) // Only take the first 5 characters for ZIP Code
         };
         $.ajax({
             type: 'POST',
@@ -30,18 +95,15 @@ $(document).ready(function() {
         });
     });
 
-    // Click handler for Not Found button
     $('#not-found').on('click', function() {
         $('#not-found-modal').modal('show');
     });
 
-    // Click handler for Match button in results
     $('#results-table').on('click', '.btn-match', function() {
         let voterData = $(this).data('voter');
         $('#match-modal').data('voter', voterData).modal('show');
     });
 
-    // Submit match form
     $('#match-form').on('submit', function(e) {
         e.preventDefault();
         let voterData = $('#match-modal').data('voter');
@@ -67,7 +129,6 @@ $(document).ready(function() {
         });
     });
 
-    // Submit not found form
     $('#not-found-form').on('submit', function(e) {
         e.preventDefault();
         let formData = {
