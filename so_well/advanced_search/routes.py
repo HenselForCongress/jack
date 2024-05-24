@@ -69,6 +69,7 @@ def search_voters():
             'first_name': voter.first_name,
             'middle_name': voter.middle_name,
             'last_name': voter.last_name,
+            'suffix': voter.suffix,
             'address': f"{address.house_number} {address.street_name} {address.street_type}",
             'city': address.city,
             'state': address.state,

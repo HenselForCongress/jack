@@ -18,10 +18,10 @@ $(document).ready(function() {
         $('#street-type-options').toggleClass('d-none');
     });
 
-    // Fetch states options -> replace state options
+    // Fetch state options
     function fetchStateOptions() {
         $.ajax({
-            url: '/advanced_search/states', // Assuming this endpoint returns available states
+            url: '/advanced_search/states',
             method: 'GET',
             success: function(data) {
                 data.forEach(function(state) {
@@ -31,10 +31,10 @@ $(document).ready(function() {
         });
     }
 
-    // Fetch unique direction options
+    // Fetch direction options
     function fetchDirectionOptions() {
         $.ajax({
-            url: '/advanced_search/directions', // Assuming this endpoint returns available directions and their counts
+            url: '/advanced_search/directions',
             method: 'GET',
             success: function(data) {
                 data.directions.forEach(function(direction) {
@@ -50,10 +50,10 @@ $(document).ready(function() {
         });
     }
 
-    // Fetch unique street type options
+    // Fetch street type options
     function fetchStreetTypeOptions() {
         $.ajax({
-            url: '/advanced_search/street_types', // Assuming this endpoint returns available street types and their counts
+            url: '/advanced_search/street_types',
             method: 'GET',
             success: function(data) {
                 data.street_types.forEach(function(streetType) {
@@ -79,7 +79,7 @@ $(document).ready(function() {
             'apartment_number': $('#apartment-number').val(),
             'city': $('#city').val(),
             'state': $('#state').val(),
-            'zip_code': $('#zip-code').val().substring(0, 5) // Only take the first 5 characters for ZIP Code
+            'zip_code': $('#zip-code').val().substring(0, 5)  // Only take the first 5 characters for ZIP Code
         };
         $.ajax({
             type: 'POST',
@@ -147,7 +147,7 @@ $(document).ready(function() {
         };
         $.ajax({
             type: 'POST',
-            url: '/signatures/verify',
+            url: '/signatures/verify',  // Ensure this points to the correct endpoint
             contentType: 'application/json',
             data: JSON.stringify(formData),
             success: function(data) {
@@ -165,10 +165,15 @@ function updateResultsTable(data) {
     let tbody = $('#results-table tbody');
     tbody.empty();
     data.forEach(function(voter) {
+        // Combine last name and suffix
+        let lastNameWithSuffix = voter.last_name;
+        if (voter.suffix) {
+            lastNameWithSuffix += ', ' + voter.suffix;
+        }
         let row = `<tr>
             <td>${voter.first_name}</td>
             <td>${voter.middle_name}</td>
-            <td>${voter.last_name}</td>
+            <td>${lastNameWithSuffix}</td>
             <td>${voter.address}</td>
             <td>${voter.city}</td>
             <td>${voter.state}</td>

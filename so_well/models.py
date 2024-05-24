@@ -48,7 +48,7 @@ class Voter(db.Model):
     mailing_address = relationship("Address", foreign_keys=[mailing_address_id])
     locality = relationship("Locality", back_populates="voters")
     def __repr__(self):
-        return f"<Voter(Identification number='{self.identification_number}', Name='{self.first_name} {self.last_name}')>"
+        return f"<Voter(Identification number='{self.identification_number}', Name='{self.first_name} {self.last_name} {self.suffix}')>"
 
 class Address(db.Model):
     __tablename__ = 'address'

@@ -12,8 +12,8 @@ def verify_signature():
     try:
         data = request.json
         voter_identification = data.get('voter_id')
-        sheet_id = data.get('sheet_number')  # Align with your actual field names
-        row_id = data.get('row_number')  # Align with your actual field names
+        sheet_id = data.get('sheet_number')
+        row_id = data.get('row_number')
         last_four_ssn = data.get('last_four_ssn')
         date_collected = data.get('date_collected')
 
@@ -60,7 +60,7 @@ def verify_signature():
             first_name=voter.first_name,
             last_name=voter.last_name,
             full_street_address=full_street_address,
-            apt=address.apt_num,  # Include apt field if needed
+            apt=address.apt_num,
             city=address.city,
             state=address.state,
             zip=address.zip[:5],
@@ -68,7 +68,7 @@ def verify_signature():
             row_id=int(row_id),
             last_4=last_four_ssn,
             date_collected=date_collected,
-            status=status  # Set status here
+            status=status
         )
         db.session.add(new_signature)
         db.session.commit()
