@@ -8,10 +8,6 @@ from .models import db, migrate
 from .middleware import cloudflare_auth_middleware
 from sqlalchemy_utils import database_exists, create_database
 
-# Setup Database and Migration
-# db = SQLAlchemy()
-# migrate = Migrate()
-
 def begin_era():
     """Create and configure an instance of the Flask application."""
     app = Flask(__name__)
@@ -20,10 +16,8 @@ def begin_era():
         # Update database URI to use PostgreSQL
         username = os.getenv('POSTGRES_USER')
         password = os.getenv('POSTGRES_PASSWORD')
-        # host = os.getenv('POSTGRES_HOST')
-        host = 'localhost'
-        port = 5430
-        # port = os.getenv('POSTGRES_PORT')
+        host = os.getenv('POSTGRES_HOST')
+        port = os.getenv('POSTGRES_PORT')
         database = os.getenv('POSTGRES_DATABASE')
         app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://{username}:{password}@{host}:{port}/{database}'
     except KeyError as e:
@@ -44,6 +38,14 @@ def begin_era():
 
     from .search.routes import search_bp
     app.register_blueprint(search_bp)
+
+    # Import and register the signatures blueprint
+    from .signatures.routes import signatures_bp
+    app.register_blueprint(signatures_bp)
+
+    # Import and register the new advanced_search blueprint
+    from .advanced_search.routes import advanced_search_bp
+    app.register_blueprint(advanced_search_bp)
 
     # Initialize database and migration
     db.init_app(app)

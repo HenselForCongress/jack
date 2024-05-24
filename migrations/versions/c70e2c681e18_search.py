@@ -3,19 +3,16 @@
 Revision ID: c70e2c681e18
 Revises: 43f13098f2a3
 Create Date: 2024-05-17 14:50:04.154052
-
 """
 from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
-
 
 # revision identifiers, used by Alembic.
 revision = 'c70e2c681e18'
 down_revision = '43f13098f2a3'
 branch_labels = None
 depends_on = None
-
 
 def upgrade():
     # Create materialized view for electorate.voter_lookup
@@ -68,12 +65,10 @@ def upgrade():
     CREATE INDEX idx_voter_mview_zip_searchable ON electorate.voter_lookup USING gin (zip_searchable);
     """)
 
-
-    # Refresh the materialized view periodically
+# Refresh the materialized view periodically
     op.execute("""
     REFRESH MATERIALIZED VIEW electorate.voter_lookup;
     """)
-
 
 def downgrade():
     # Drop indexes on the materialized view
@@ -97,5 +92,3 @@ def downgrade():
     op.execute("""
     DROP MATERIALIZED VIEW IF EXISTS electorate.voter_lookup;
     """)
-
-
