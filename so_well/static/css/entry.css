@@ -23,3 +23,18 @@
     cursor: pointer;
     color: #007bff;
 }
+
+.dropdown-options {
+    border: 1px solid #ddd;
+    background: white;
+    max-height: 200px;
+    overflow-y: auto;
+    display: block;
+    position: absolute;
+    z-index: 1000;
+    padding: 10px;
+}
+
+.d-none {
+    display: none;
+}
