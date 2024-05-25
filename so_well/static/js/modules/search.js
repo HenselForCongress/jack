@@ -39,16 +39,15 @@ function updateResultsTable(data) {
     let tbody = $('#results-table tbody');
     tbody.empty();
     if (data.length === 0) {
-        tbody.append('<tr><td colspan="9" class="text-center">No results found</td></tr>');
+        tbody.append('<tr><td colspan="10" class="text-center">No results found</td></tr>');  // Updated colspan
     } else {
         data.forEach(function(voter) {
-            // Combine address elements
-            let address = `${voter.house_number} ${voter.house_number_suffix || ''} ${voter.direction || ''} ${voter.street_name} ${voter.street_type || ''} ${voter.post_direction || ''} ${voter.apartment_number ? 'Apt ' + voter.apartment_number : ''}`;
             let row = `<tr>
                 <td>${voter.first_name}</td>
                 <td>${voter.middle_name || ''}</td>
                 <td>${voter.last_name}</td>
-                <td>${address}</td>
+                <td>${voter.full_address}</td>
+                <td>${voter.apartment_number || ''}</td>
                 <td>${voter.city}</td>
                 <td>${voter.state}</td>
                 <td>${voter.zip_code}</td>

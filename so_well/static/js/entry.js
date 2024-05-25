@@ -1,3 +1,4 @@
+// so_well/static/js/entry.js
 $(document).ready(function() {
     fetchStateOptions();
     fetchDirectionOptions();
@@ -38,12 +39,12 @@ $(document).ready(function() {
             method: 'GET',
             success: function(data) {
                 data.directions.forEach(function(direction) {
-                    $('#direction-options').append(`<div><input type="checkbox" class="direction-option" value="${direction.value}"> ${direction.value} (${direction.count})</div>`);
+                    $('#direction-options').append(`<div><input type="checkbox" class="direction-option" value="${direction.value}"> ${direction.value}</div>`);
                     $('#direction').append(`<option value="${direction.value}">${direction.value}</option>`);
                 });
 
                 data.post_directions.forEach(function(postDirection) {
-                    $('#post-direction-options').append(`<div><input type="checkbox" class="post-direction-option" value="${postDirection.value}"> ${postDirection.value} (${postDirection.count})</div>`);
+                    $('#post-direction-options').append(`<div><input type="checkbox" class="post-direction-option" value="${postDirection.value}"> ${postDirection.value}</div>`);
                     $('#post-direction').append(`<option value="${postDirection.value}">${postDirection.value}</option>`);
                 });
             }
@@ -57,7 +58,7 @@ $(document).ready(function() {
             method: 'GET',
             success: function(data) {
                 data.street_types.forEach(function(streetType) {
-                    $('#street-type-options').append(`<div><input type="checkbox" class="street-type-option" value="${streetType.value}"> ${streetType.value} (${streetType.count})</div>`);
+                    $('#street-type-options').append(`<div><input type="checkbox" class="street-type-option" value="${streetType.value}"> ${streetType.value}</div>`);
                     $('#street-type').append(`<option value="${streetType.value}">${streetType.value}</option>`);
                 });
             }
@@ -73,21 +74,23 @@ $(document).ready(function() {
             'house_number': $('#house-number').val(),
             'house_number_suffix': $('#house-number-suffix').val(),
             'street_name': $('#street-name').val(),
-            'street_type': $('#street-type').val(),
-            'direction': $('#direction').val(),
-            'post_direction': $('#post-direction').val(),
+            'street_type': $('input.street-type-option:checked').map(function() { return this.value }).get(),
+            'direction': $('input.direction-option:checked').map(function() { return this.value }).get(),
+            'post_direction': $('input.post-direction-option:checked').map(function() { return this.value }).get(),
             'apartment_number': $('#apartment-number').val(),
             'city': $('#city').val(),
             'state': $('#state').val(),
             'zip_code': $('#zip-code').val().substring(0, 5)  // Only take the first 5 characters for ZIP Code
         };
+        console.log("Submitting search with formData:", formData);
         $.ajax({
             type: 'POST',
             url: '/advanced_search/',
             contentType: 'application/json',
             data: JSON.stringify(formData),
             success: function(data) {
-                updateResultsTable(data);
+                console.log("Search results received:", data);
+                updateResultsTable(data.results);  // Update only the "results" part
             },
             error: function(xhr, status, error) {
                 console.error('Error:', error);
@@ -161,26 +164,26 @@ $(document).ready(function() {
     });
 });
 
-function updateResultsTable(data) {
+function updateResultsTable(results) {
     let tbody = $('#results-table tbody');
     tbody.empty();
-    data.forEach(function(voter) {
-        // Combine last name and suffix
-        let lastNameWithSuffix = voter.last_name;
-        if (voter.suffix) {
-            lastNameWithSuffix += ', ' + voter.suffix;
-        }
-        let row = `<tr>
-            <td>${voter.first_name}</td>
-            <td>${voter.middle_name}</td>
-            <td>${lastNameWithSuffix}</td>
-            <td>${voter.address}</td>
-            <td>${voter.city}</td>
-            <td>${voter.state}</td>
-            <td>${voter.zip_code}</td>
-            <td>${voter.status}</td>
-            <td><button class="btn btn-primary btn-match" data-voter='${JSON.stringify(voter)}'>Match</button></td>
-           </tr>`;
-        tbody.append(row);
-    });
+    if (results.length === 0) {
+        tbody.append('<tr><td colspan="10" class="text-center">No results found</td></tr>');  // Updated colspan
+    } else {
+        results.forEach(function(voter) {
+            let row = `<tr>
+                <td>${voter.first_name}</td>
+                <td>${voter.middle_name || ''}</td>
+                <td>${voter.last_name}</td>
+                <td>${voter.full_address}</td>  <!-- Use full_address -->
+                <td>${voter.apartment_number || ''}</td>  <!-- New column for apartment number -->
+                <td>${voter.city}</td>
+                <td>${voter.state}</td>
+                <td>${voter.zip_code}</td>
+                <td>${voter.status}</td>
+                <td><button class="btn btn-primary btn-match" data-voter='${JSON.stringify(voter)}'>Match</button></td>
+            </tr>`;
+            tbody.append(row);
+        });
+    }
 }
