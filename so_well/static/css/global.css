@@ -1,0 +1,16 @@
+/* Global Styles | so_well/static/css/global.css */
+/* ---------------------------------------------------------- */
+
+.header-bar {
+    background-color: #007bff;
+    padding: 15px;
+    color: white;
+    margin-bottom: 20px;
+}
+
+.sticky-table-header {
+    position: sticky;
+    top: 0;
+    background-color: white;
+    z-index: 2;
+}

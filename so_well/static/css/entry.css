@@ -1,0 +1,25 @@
+/* Entry Page Styles | so_well/static/css/entry.css */
+/* ---------------------------------------------------------- */
+
+.short-input {
+    max-width: 100px;
+}
+
+.container-fluid {
+    margin: 20px;
+}
+
+.form-container {
+    max-height: calc(100vh - 60px);  /* Adjust according to header height */
+    overflow-y: auto;
+}
+
+.search-section {
+    position: sticky;
+    top: 60px;  /* Adjust according to header height */
+}
+
+.clickable-label {
+    cursor: pointer;
+    color: #007bff;
+}
