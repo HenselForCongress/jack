@@ -4,7 +4,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import func, case
 from ..models import db
 from .models import Sheet, SheetStatus, Notary, Circulator
-from ..signatures.models import SignatureMatch  # Import SignatureMatch
+from ..signatures.models import SignatureMatch
 from ..utils import logger
 
 sheets_bp = Blueprint('sheets', __name__, url_prefix='/sheets')

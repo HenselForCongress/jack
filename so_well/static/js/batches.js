@@ -23,6 +23,10 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.success) {
                 showNotification(`Sheet ${sheetId} added to batch ${data.batch_id}`, 'success');
                 this.disabled = true;
+                // Refresh the page to show updated status
+                setTimeout(function() {
+                    location.reload();
+                }, 500); // Adjust delay if necessary
             } else {
                 showNotification(data.error || 'Failed to add sheet to batch', 'danger');
             }
