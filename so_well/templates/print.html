@@ -1,4 +1,4 @@
-<!--templates/print.html-->
+<!-- templates/print.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,7 +11,7 @@
     <div class="container">
         <div class="input-section">
             <label for="sheet-number-input">Enter Sheet Number:</label>
-            <input type="number" id="sheet-number-input" min="1">
+            <input type="number" id="sheet-number-input" min="1" onkeydown="if (event.key === 'Enter') generateSheet()">
             <button onclick="generateSheet()">Generate</button>
         </div>
         <div class="header">
@@ -32,10 +32,10 @@
                     <th>Address</th>
                     <th>Apt #</th>
                     <th>City</th>
-                    <th>State</th>
-                    <th>Zip Code</th>
-                    <th>Signed On</th>
-                    <th>SSN 4</th>
+                    <th class="center">State</th>
+                    <th class="center">Zip Code</th>
+                    <th class="center">Signed On</th>
+                    <th class="center">SSN 4</th>
                 </tr>
             </thead>
             <tbody id="data-rows">
@@ -45,22 +45,25 @@
         <div class="info-section">
             <div class="circulator">
                 <h3>Circulator</h3>
-                <p>Bentley Hensel<br>600 S Water Reed Drive<br>Arlington, VA 22204</p>
+                <p id="circulator-info">
+                    <!-- Circulator information will be filled here -->
+                </p>
             </div>
             <div class="notary">
                 <h3>Notary</h3>
+                <p id="notary-info">
+                    <!-- Notary information will be filled here -->
+                </p>
                 <p>
-                    <strong>Name:</strong> <span id="notary-name">Lewis Grant Walker</span>
-                    <strong>Registration:</strong> <span id="notary-registration">8012371</span>
-                    <strong>Expiration:</strong> <span id="notary-expiration">06-30-2026</span>
-                    <strong>State:</strong> <span id="notary-state">Commonwealth of Virginia</span>
+                  <strong>Notarized:</strong> <span id="notarize-date">-</span>
                 </p>
             </div>
         </div>
+        <div class="footer">
+            Sheet Number: <strong id="footer-sheet-number">-</strong>
+        </div>
     </div>
-    <div class="footer">
-        Sheet Number: <strong id="footer-sheet-number">-</strong>
-    </div>
+
     <script src="/static/js/print.js"></script>
 </body>
 </html>
