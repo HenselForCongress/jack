@@ -1,0 +1,113 @@
+/* Printed Page Styles | so_well/static/css/print.css */
+/* ---------------------------------------------------------- */
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    font-size: 12px;
+}
+
+.container {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.left-header p, .right-header p {
+    margin: 0;
+    font-size: 14px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 10px;
+}
+
+th, td {
+    border: 1px solid #000;
+    padding: 5px;
+    text-align: left;
+}
+
+th {
+    background-color: white;
+    color: #569edb;
+}
+
+tbody tr:nth-child(odd) td:not(.row-number) {
+    background-color: white;
+}
+
+tbody tr:nth-child(even) td:not(.row-number) {
+    background-color: #e9e9e9;
+}
+
+td.row-number-even {
+    color: #569edb;
+    font-weight: bold;
+    text-align: center;
+    background-color: white;
+}
+
+td.row-number-odd {
+    background-color: #569edb;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+}
+
+td.row-number {
+    width: 30px;
+}
+
+td.center {
+    text-align: center;
+}
+
+.info-section {
+    display: flex;
+    justify-content: space-between;
+}
+
+.circulator, .notary {
+    width: 45%;
+    font-size: 12px;
+}
+
+.circulator h3, .notary h3 {
+    margin-top: 0;
+    color: #569edb;
+    font-size: 14px;
+}
+
+.notary p {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    row-gap: 1px;
+}
+
+.notary span {
+    text-align: left;
+}
+
+.footer {
+    margin-top: 12px;
+    font-size: 12px;
+    text-align: right;
+}
+
+.input-section {
+    margin-bottom: 10px;
+}
+
+@media print {
+    .input-section {
+        display: none;
+    }
+}

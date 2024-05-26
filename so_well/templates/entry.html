@@ -11,8 +11,23 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/entry.css') }}">
 </head>
 <body>
-    <div class="header-bar">
+    <div class="header-bar d-flex justify-content-between align-items-center">
         <h1 class="text-center">Voter Verification Entry Page</h1>
+        <div class="header-fields">
+            <div class="form-inline">
+                <label for="header-sheet-number" class="my-1 mr-2">Sheet Number</label>
+                <input type="text" class="form-control mb-2 mr-sm-2" id="header-sheet-number" placeholder="Sheet Number">
+
+                <label for="header-month" class="my-1 mr-2">Month</label>
+                <input type="text" class="form-control mb-2 mr-sm-2" id="header-month" placeholder="MM">
+
+                <label for="header-day" class="my-1 mr-2">Day</label>
+                <input type="text" class="form-control mb-2 mr-sm-2" id="header-day" placeholder="DD">
+
+                <label for="header-year" class="my-1 mr-2">Year</label>
+                <input type="text" class="form-control mb-2 mr-sm-2" id="header-year" placeholder="YYYY">
+            </div>
+        </div>
     </div>
     <div class="container-fluid">
         <div class="row">
@@ -25,7 +40,7 @@
                             <th>Middle Name</th>
                             <th>Last Name</th>
                             <th>Address</th>
-                            <th>Apt. Number</th>  <!-- New column for apartment number -->
+                            <th>Apt. Number</th>
                             <th>City</th>
                             <th>State</th>
                             <th>Zip Code</th>

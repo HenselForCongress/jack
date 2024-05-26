@@ -7,6 +7,9 @@ $(document).ready(function() {
     fetchDirectionOptions();
     fetchStreetTypeOptions();
 
+    // Prepopulate the date fields with the current date
+    prepopulateDateFields();
+
     // Handle form submission and search
     $('#search-form').on('submit', function(e) {
         e.preventDefault();
@@ -23,6 +26,25 @@ $(document).ready(function() {
         let voterData = $(this).data('voter');
         console.log("Match button clicked", voterData);
         $('#match-modal').data('voter', voterData).modal('show');
+
+        // Auto-fill modal sheet number
+        $('#sheet-number').val($('#header-sheet-number').val());
+
+        // Pre-populate the date-collected field
+        let month = $('#header-month').val();
+        let day = $('#header-day').val();
+        let year = $('#header-year').val();
+        let collectedDate = null;
+
+        if (month && day && year) {
+            collectedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+        } else if (month && year) {
+            collectedDate = `${year}-${month.padStart(2, '0')}-01`;
+        } else if (year) {
+            collectedDate = `${year}-01-01`;
+        }
+
+        $('#date-collected').val(collectedDate);
     });
 
     $('#match-form').on('submit', function(e) {
@@ -58,7 +80,7 @@ $(document).ready(function() {
         let formData = {
             sheet_number: $('#nf-sheet-number').val(),
             row_number: $('#nf-row-number').val(),
-            date_signed: $('#nf-date-signed').val(),
+            date_collected: $('#nf-date-signed').val(),
             first_name: $('#nf-first-name').val(),
             middle_name: $('#nf-middle-name').val(),
             last_name: $('#nf-last-name').val(),
@@ -69,7 +91,9 @@ $(document).ready(function() {
             zip_code: $('#nf-zip-code').val(),
             last_four_ssn: $('#nf-last-4').val()
         };
-        console.log("Not Found form submitted", formData);
+
+        console.log("Submitting Not Found form with formData:", formData);
+
         $.ajax({
             type: 'POST',
             url: '/signatures/verify',
@@ -79,9 +103,11 @@ $(document).ready(function() {
                 console.log("Not Found recorded successfully");
                 $('#not-found-modal').modal('hide');
                 alert('Successfully recorded!');
+                resetFormFields(); // Clear the search form fields
             },
             error: function(xhr, status, error) {
                 console.error('Error recording Not Found:', error);
+                alert(`Error: ${xhr.responseJSON.error}`);
             }
         });
     });
@@ -202,4 +228,14 @@ $(document).ready(function() {
         console.log("Resetting form fields");
         $('#search-form').trigger("reset");
     }
+
+    function prepopulateDateFields() {
+        let current_date = new Date();
+        $('#header-month').val(('0' + (current_date.getMonth() + 1)).slice(-2));
+        $('#header-day').val(('0' + current_date.getDate()).slice(-2));
+        $('#header-year').val(current_date.getFullYear());
+    }
+
+    // Prepopulate with default values on page load
+    prepopulateDateFields();
 });
