@@ -1,16 +1,17 @@
 # so_well/sheets/models.py
+from sqlalchemy import Column, Integer, String, Date, ForeignKey, DateTime, func
 from sqlalchemy.orm import relationship, backref
-from ..models import db, func
+from ..models import db
 
 class Sheet(db.Model):
     __tablename__ = 'sheets'
     __table_args__ = {'schema': 'signatures'}
 
     id = db.Column(db.Integer, primary_key=True)
-    collector_id = db.Column(db.Integer, db.ForeignKey('signatures.circulators.id'), nullable=True)
-    notary_id = db.Column(db.Integer, db.ForeignKey('signatures.notaries.id'), nullable=True)
-    status = db.Column(db.String(50), db.ForeignKey('meta.sheet_status.status'), nullable=False, default='Printed')
-    batch_id = db.Column(db.Integer, nullable=True)  # Updated later
+    collector_id = db.Column(db.Integer, ForeignKey('signatures.circulators.id'), nullable=True)
+    notary_id = db.Column(db.Integer, ForeignKey('signatures.notaries.id'), nullable=True)
+    status = db.Column(db.String(50), ForeignKey('meta.sheet_status.status'), nullable=False, default='Printed')
+    batch_id = db.Column(db.Integer, ForeignKey('signatures.batches.id'), nullable=True)
     notarized_on = db.Column(db.Date, nullable=True)
     created_at = db.Column(db.DateTime, default=func.now(), nullable=False)
     updated_at = db.Column(db.DateTime, default=func.now(), onupdate=func.now(), nullable=False)
