@@ -1,9 +1,10 @@
 /* Printed Page Styles | so_well/static/css/print.css */
 /* ---------------------------------------------------------- */
+/* Printed Page Styles */
 body {
     font-family: Arial, sans-serif;
     margin: 20px;
-    font-size: 12px;
+    font-size: 13px;
 }
 
 .container {
@@ -30,7 +31,7 @@ table {
 }
 
 th, td {
-    border: 1px solid #000;
+    border: 0.75px solid #000;
     padding: 5px;
     text-align: left;
 }
@@ -70,6 +71,14 @@ td.center {
     text-align: center;
 }
 
+td.right {
+    text-align: right;
+}
+
+td.left {
+    text-align: left;
+}
+
 .info-section {
     display: flex;
     justify-content: space-between;
@@ -96,9 +105,19 @@ td.center {
     text-align: left;
 }
 
+.notarize p {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    row-gap: 1px;
+}
+
+.notarize span {
+    text-align: left;
+}
+
 .footer {
     margin-top: 12px;
-    font-size: 12px;
+    font-size: 15px;
     text-align: right;
 }
 
@@ -110,4 +129,12 @@ td.center {
     .input-section {
         display: none;
     }
+
+    @page {
+        size: landscape;
+    }
+}
+
+th.center {
+    text-align: center;
 }
