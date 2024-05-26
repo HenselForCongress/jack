@@ -99,10 +99,14 @@ def update_sheet_status():
 @sheets_bp.route('/close_sheet', methods=['POST'])
 def close_sheet():
     data = request.json
-    sheet_id = data.get('sheet_id')
-    notary_id = data.get('notary_id')
-    notarized_on = data.get('notarized_on')  # Ensure `notarized_on` is a valid date string
-    collector_id = data.get('collector_id')
+    try:
+        sheet_id = int(data.get('sheet_id'))
+        notary_id = int(data.get('notary_id'))
+        notarized_on = data.get('notarized_on')  # Ensure `notarized_on` is a valid date string
+        collector_id = int(data.get('collector_id'))
+    except (ValueError, TypeError):
+        logger.warning('Invalid input data for closing sheet. Ensure sheet_id, notary_id, and collector_id are integers.')
+        return jsonify({'error': 'Invalid input data'}), 400
 
     logger.info('Received close request for sheet id: %s', sheet_id)
 
@@ -111,11 +115,6 @@ def close_sheet():
         if not sheet:
             logger.warning('Invalid sheet or status for sheet id: %s', sheet_id)
             return jsonify({'error': 'Invalid sheet or status'}), 400
-
-        # Ensure valid integers and date
-        if not isinstance(sheet_id, int) or not isinstance(notary_id, int) or not isinstance(collector_id, int):
-            logger.warning('Invalid input data for closing sheet')
-            return jsonify({'error': 'Invalid input data'}), 400
 
         logger.info('Closing sheet id: %s', sheet_id)
         sheet.collector_id = collector_id
