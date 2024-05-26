@@ -1,10 +1,10 @@
 # so_well/sheets/routes.py
-# so_well/sheets/routes.py
 from flask import Blueprint, render_template, request, jsonify
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy import func
+from sqlalchemy import func, case
 from ..models import db
 from .models import Sheet, SheetStatus, Notary, Circulator
+from ..signatures.models import SignatureMatch  # Import SignatureMatch
 from ..utils import logger
 
 sheets_bp = Blueprint('sheets', __name__, url_prefix='/sheets')
@@ -13,14 +13,27 @@ sheets_bp = Blueprint('sheets', __name__, url_prefix='/sheets')
 @sheets_bp.route('/', methods=['GET'])
 def show_sheets():
     try:
-        logger.info('Fetching status counts')
-        status_counts = db.session.query(Sheet.status, db.func.count(Sheet.id)).group_by(Sheet.status).all()
-        status_count_dict = {status: count for status, count in status_counts}
+        logger.info('Fetching sheets in Summarizing status with stats')
+        summarizing_sheets = db.session.query(
+            Sheet.id,
+            func.count(SignatureMatch.id).label('total_signatures'),
+            func.sum(case((SignatureMatch.voter_id.isnot(None), 1), else_=0)).label('valid_signatures')
+        ).join(SignatureMatch, SignatureMatch.sheet_id == Sheet.id).filter(
+            Sheet.status == 'Summarizing'
+        ).group_by(Sheet.id).all()
 
-        logger.info('Fetching ordered statuses')
-        ordered_statuses = db.session.query(SheetStatus).order_by(SheetStatus.order).all()
+        # Append valid_rate to each sheet data
+        sheet_data = [
+            {
+                'sheet_number': sheet[0],
+                'total_signatures': sheet[1],
+                'valid_signatures': sheet[2],
+                'valid_rate': (sheet[2] / sheet[1]) * 100 if sheet[1] > 0 else 0
+            }
+            for sheet in summarizing_sheets
+        ]
 
-        return render_template('sheets.html', status_counts=status_count_dict, ordered_statuses=ordered_statuses)
+        return render_template('sheets.html', sheet_data=sheet_data)
     except SQLAlchemyError as e:
         logger.error('Database error: %s', e)
         return render_template('error.html', message='An error occurred while fetching sheets data.'), 500
@@ -50,11 +63,11 @@ def get_circulators():
 
 @sheets_bp.route('/update_sheet_status', methods=['POST'])
 def update_sheet_status():
-    data = request.json
+    data = request.json  # Ensure we're receiving the correct data structure
     sheet_number = data.get('sheet_number')
     new_status = data.get('new_status')
 
-    logger.info('Received update request for sheet number: %s', sheet_number)
+    logger.info('Received update request for sheet number: %s to change to status: %s', sheet_number, new_status)
 
     try:
         sheet = Sheet.query.filter_by(id=sheet_number).first()
@@ -62,11 +75,14 @@ def update_sheet_status():
             logger.warning('Sheet not found for id: %s', sheet_number)
             return jsonify({'error': 'Sheet not found'}), 404
 
-        logger.info('Updating status for sheet id: %s from %s to %s', sheet_number, sheet.status, new_status)
-        if (
-            (sheet.status == 'Printed' and new_status == 'Signing') or
-            (sheet.status == 'Signing' and new_status == 'Summarizing')
-        ):
+        logger.info('Current status for sheet id: %s is %s', sheet_number, sheet.status)
+
+        valid_transitions = {
+            'Printed': 'Signing',
+            'Signing': 'Summarizing'
+        }
+
+        if sheet.status in valid_transitions and new_status == valid_transitions[sheet.status]:
             sheet.status = new_status
             db.session.commit()
             logger.info('Status updated successfully for sheet id: %s', sheet_number)
@@ -85,7 +101,7 @@ def close_sheet():
     data = request.json
     sheet_id = data.get('sheet_id')
     notary_id = data.get('notary_id')
-    notarized_on = data.get('notarized_on')
+    notarized_on = data.get('notarized_on')  # Ensure `notarized_on` is a valid date string
     collector_id = data.get('collector_id')
 
     logger.info('Received close request for sheet id: %s', sheet_id)
@@ -95,6 +111,11 @@ def close_sheet():
         if not sheet:
             logger.warning('Invalid sheet or status for sheet id: %s', sheet_id)
             return jsonify({'error': 'Invalid sheet or status'}), 400
+
+        # Ensure valid integers and date
+        if not isinstance(sheet_id, int) or not isinstance(notary_id, int) or not isinstance(collector_id, int):
+            logger.warning('Invalid input data for closing sheet')
+            return jsonify({'error': 'Invalid input data'}), 400
 
         logger.info('Closing sheet id: %s', sheet_id)
         sheet.collector_id = collector_id

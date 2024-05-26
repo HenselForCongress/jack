@@ -79,3 +79,8 @@ h1 {
 .input-group .form-control::placeholder {
     color: var(--color-midgrey);
 }
+
+/* Notification Styles */
+.alert {
+    margin-top: 15px;
+}
