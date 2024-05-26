@@ -1,0 +1,26 @@
+/* Home Page Styles | so_well/static/css/home.css */
+/* ---------------------------------------------------------- */
+
+.chart-container {
+    position: relative;
+    height: 400px; /* Adjust the height as necessary */
+    width: 400px;  /* Adjust the width as necessary */
+    margin: 0 auto; /* Center the chart */
+}
+
+.progress {
+    height: 30px;
+    background-color: #e9ecef;
+    margin-top: 20px;
+    border-radius: 8px;
+}
+
+.progress-bar {
+    background-color: #28a745;
+    font-weight: bold;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+}

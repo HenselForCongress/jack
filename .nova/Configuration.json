@@ -1,3 +1,6 @@
 {
+  "index.ignored_file_patterns" : [
+    "data\/*"
+  ],
   "workspace.name" : "Jack"
 }

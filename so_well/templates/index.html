@@ -6,226 +6,100 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Voter Verification</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <div class="container">
+    <div class="container text-center mt-5">
         <h1>Voter Verification</h1>
-        <form id="search-form" class="form-inline mb-4" onkeypress="searchOnEnter(event)">
-            <!-- Form Fields -->
-            <div class="form-group mb-2">
-                <label for="first_name" class="mr-2">First Name: </label>
-                <input type="text" id="first_name" name="first_name" class="form-control mr-2">
-                <label for="first_name_direct" class="mr-2">Direct: </label>
-                <input type="checkbox" id="first_name_direct" name="first_name_direct" class="form-control mr-4">
-            </div>
-            <div class="form-group mb-2">
-                <label for="last_name" class="mr-2">Last Name: </label>
-                <input type="text" id="last_name" name="last_name" class="form-control mr-2">
-                <label for="last_name_direct" class="mr-2">Direct: </label>
-                <input type="checkbox" id="last_name_direct" name="last_name_direct" class="form-control mr-4">
-            </div>
-            <div class="form-group mb-2">
-                <label for="address" class="mr-2">Address: </label>
-                <input type="text" id="address" name="address" class="form-control mr-2">
-                <label for="address_direct" class="mr-2">Direct: </label>
-                <input type="checkbox" id="address_direct" name="address_direct" class="form-control mr-4">
-            </div>
-            <div class="form-group mb-2">
-                <label for="city" class="mr-2">City: </label>
-                <input type="text" id="city" name="city" class="form-control mr-2">
-                <label for="city_direct" class="mr-2">Direct: </label>
-                <input type="checkbox" id="city_direct" name="city_direct" class="form-control mr-4">
-            </div>
-            <div class="form-group mb-2">
-                <label for="state" class="mr-2">State: </label>
-                <input type="text" id="state" name="state" class="form-control mr-4" value="VA">
-            </div>
-            <div class="form-group mb-2">
-                <label for="zip" class="mr-2">ZIP: </label>
-                <input type="text" id="zip" name="zip" class="form-control mr-2">
-                <label for="zip_direct" class="mr-2">Direct: </label>
-                <input type="checkbox" id="zip_direct" name="zip_direct" class="form-control mr-4">
-            </div>
-            <div class="form-group mb-2">
-                <label for="apt_num" class="mr-2">Apt #: </label>
-                <input type="text" id="apt_num" name="apt_num" class="form-control mr-4">
-            </div>
-            <button type="button" class="btn btn-primary mb-2" onclick="searchVoters()">Search</button>
-            <button type="button" class="btn btn-secondary mb-2 ml-2" onclick="toggleAdvancedSearch()">View More Fields</button>
-        </form>
+        <button type="button" class="btn btn-primary mt-4" onclick="location.href='/entry'">Enter Signatures</button>
 
-        <div id="advanced-search" style="display: none;">
-            <!-- Add additional fields as needed -->
-        </div>
-
-        <h3>Results</h3>
-        <div id="results">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>First Name</th>
-                        <th>Middle Name</th>
-                        <th>Last Name</th>
-                        <th>Address</th>
-                        <th>Apt Number</th>
-                        <th>City</th>
-                        <th>State</th>
-                        <th>ZIP Code</th>
-                        <th>Relevance Rank</th>
-                        <th>Action</th> <!-- Added for the Verify button -->
-                    </tr>
-                </thead>
-                <tbody id="results-table-body"></tbody>
-            </table>
+        <!-- Statistics Section -->
+        <div class="mt-5" id="stats-section">
+            <h2>Signature Statistics</h2>
+            <div class="chart-container">
+                <canvas id="signatureChart"></canvas>
+            </div>
+            <div class="mt-4">
+                <h4>Progress toward 1,000 Matched Signatures</h4>
+                <div class="progress">
+                    <div class="progress-bar" role="progressbar" style="width: 0%;" id="progress-bar">0%</div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Modal HTML -->
-    <div class="modal fade" id="verifySignatureModal" tabindex="-1" role="dialog" aria-labelledby="verifySignatureModalLabel" aria-hidden="true">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="verifySignatureModalLabel">Verify</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <form id="verify-signature-form">
-              <div class="form-group">
-                <label for="sheet_number">Sheet #</label>
-                <input type="number" class="form-control" id="sheet_number" name="sheet_number" required>
-              </div>
-              <div class="form-group">
-                <label for="row_number">Row #</label>
-                <input type="number" class="form-control" id="row_number" name="row_number" min="1" max="12" required>
-              </div>
-              <div class="form-group">
-                <label for="last_four_ssn">Last 4 of SSN</label>
-                <input type="number" class="form-control" id="last_four_ssn" name="last_four_ssn">
-              </div>
-              <div class="form-group">
-                <label for="date_collected">Date Collected</label>
-                <input type="date" class="form-control" id="date_collected" name="date_collected" required>
-              </div>
-              <input type="hidden" id="voter-id">
-              <input type="hidden" id="full_street_address" name="full_street_address">
-              <input type="hidden" id="city" name="city">
-              <input type="hidden" id="state" name="state">
-              <input type="hidden" id="zip" name="zip">
-              <button type="submit" class="btn btn-primary">Record</button>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-
+    <!-- Optional: include the Bootstrap JavaScript plugins for a better experience -->
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
     <script>
-        function searchVoters() {
-            const formData = new FormData(document.getElementById('search-form'));
-            const params = new URLSearchParams(formData).toString();
+        $(document).ready(function() {
+            // Fetch and display statistics
+            fetchStatistics();
 
-            fetch(`/search?${params}`)
-                .then(response => response.json())
-                .then(data => {
-                    const resultsTableBody = document.getElementById('results-table-body');
-                    resultsTableBody.innerHTML = '';  // Clear previous results
-
-                    data.forEach(result => {
-                        const rank = result.rank || 0;
-                        const row = `
-                            <tr>
-                                <td>${result.first_name}</td>
-                                <td>${result.middle_name || ''}</td>
-                                <td>${result.last_name}</td>
-                                <td>${result.address}</td> <!-- Directly use result.address -->
-                                <td>${result.apt_num || ''}</td>
-                                <td>${result.city}</td>
-                                <td>${result.state}</td>
-                                <td>${result.zip}</td>
-                                <td>${rank.toFixed(2)}</td>  <!-- Ensure rank has two decimal places -->
-                                <td>
-                                    <button type="button" class="btn btn-secondary" onclick="openVerifySignatureModal(
-                                        '${result.id}', '${result.first_name}', '${result.last_name}',
-                                        '${result.address}', '${result.city}', '${result.state}', '${result.zip}')">
-                                        Verify
-                                    </button>
-                                </td>
-                            </tr>
-                        `;
-                        resultsTableBody.insertAdjacentHTML('beforeend', row);
-                    });
-                })
-                .catch(error => console.error('Error:', error));
-        }
-
-        function openVerifySignatureModal(id, firstName, lastName, address, city, state, zip) {
-            document.getElementById('voter-id').value = id;
-            document.getElementById('full_street_address').value = `${address}`;
-            document.getElementById('city').value = `${city}`;
-            document.getElementById('state').value = `${state}`;
-            document.getElementById('zip').value = `${zip}`;
-            $('#verifySignatureModal').modal('show');
-        }
-
-        document.getElementById('verify-signature-form').addEventListener('submit', function (event) {
-            event.preventDefault();
-
-            const voterId = document.getElementById('voter-id').value;
-            const formData = new FormData(document.getElementById('verify-signature-form'));
-            const data = {
-                voter_id: voterId,
-                sheet_number: formData.get('sheet_number'),
-                row_number: formData.get('row_number'),
-                last_four_ssn: formData.get('last_four_ssn'),
-                date_collected: formData.get('date_collected'),
-                full_street_address: formData.get('full_street_address'),
-                city: formData.get('city'),
-                state: formData.get('state'),
-                zip: formData.get('zip')
-            };
-
-            fetch('/signatures/verify', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data),
-            })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
+            function fetchStatistics() {
+                $.ajax({
+                    url: '/signatures/stats',
+                    method: 'GET',
+                    success: function(data) {
+                        console.log('Statistics data:', data);
+                        displayStatistics(data);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error fetching statistics:', error);
                     }
-                    $('#verifySignatureModal').modal('hide');
-                    alert('Signature verified and recorded successfully');
-                })
-                .catch(error => {
-                    console.error('Error:', error);
                 });
-        });
-
-        function toggleAdvancedSearch() {
-            const advancedSearch = document.getElementById('advanced-search');
-            advancedSearch.style.display = advancedSearch.style.display === 'none' ? 'block' : 'none';
-        }
-
-        function searchOnEnter(event) {
-            if (event.keyCode === 13 && (event.metaKey || event.ctrlKey)) {
-                event.preventDefault();
-                searchVoters();
             }
-        }
 
-        document.addEventListener('keydown', function(event) {
-            if (event.ctrlKey && event.key === 'Enter') {
-                searchVoters();
+            function displayStatistics(stats) {
+                // Get total signatures
+                let totalSignatures = Object.values(stats).reduce((a, b) => a + b, 0);
+
+                // Prepare data for the chart
+                let labels = Object.keys(stats);
+                let data = Object.values(stats);
+                let backgroundColors = ['#007bff', '#28a745', '#dc3545', '#ffc107'];
+
+                // Create or update the chart
+                let ctx = document.getElementById('signatureChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: data,
+                            backgroundColor: backgroundColors
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(tooltipItem) {
+                                        let label = tooltipItem.label || '';
+                                        let value = tooltipItem.raw;
+                                        let percentage = ((value / totalSignatures) * 100).toFixed(2);
+                                        return `${label}: ${value} (${percentage}%)`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // Update progress bar
+                let matchedSignatures = stats['Matched'] || 0;
+                let progress = Math.min((matchedSignatures / 1000) * 100, 100).toFixed(2);
+                $('#progress-bar').css('width', progress + '%').text(`${progress}%`);
             }
         });
     </script>
-
-    <!-- Optional: include the Bootstrap JavaScript plugins for a better experience -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 </body>
 </html>

@@ -1,3 +1,4 @@
+<!--templates/entry.html-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,30 +7,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Entry Page</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-    <style>
-        .short-input {
-            max-width: 150px;
-        }
-        .half-input {
-            max-width: 300px;
-        }
-        .container-fluid {
-            margin: 20px;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/entry.css') }}">
 </head>
 <body>
+    <div class="header-bar d-flex justify-content-between align-items-center">
+        <h1 class="text-center">Voter Verification Entry Page</h1>
+        <div class="header-fields">
+            <div class="form-inline">
+                <label for="header-sheet-number" class="my-1 mr-2">Sheet Number</label>
+                <input type="text" class="form-control mb-2 mr-sm-2" id="header-sheet-number" placeholder="Sheet Number">
+
+                <label for="header-month" class="my-1 mr-2">Month</label>
+                <input type="text" class="form-control mb-2 mr-sm-2" id="header-month" placeholder="MM">
+
+                <label for="header-day" class="my-1 mr-2">Day</label>
+                <input type="text" class="form-control mb-2 mr-sm-2" id="header-day" placeholder="DD">
+
+                <label for="header-year" class="my-1 mr-2">Year</label>
+                <input type="text" class="form-control mb-2 mr-sm-2" id="header-year" placeholder="YYYY">
+            </div>
+        </div>
+    </div>
     <div class="container-fluid">
         <div class="row">
             <!-- Results Table -->
-            <div class="col-8">
+            <div class="col-md-8">
                 <table class="table table-striped" id="results-table">
-                    <thead>
+                    <thead class="sticky-table-header">
                         <tr>
                             <th>First Name</th>
                             <th>Middle Name</th>
                             <th>Last Name</th>
                             <th>Address</th>
+                            <th>Apt. Number</th>
                             <th>City</th>
                             <th>State</th>
                             <th>Zip Code</th>
@@ -42,94 +53,67 @@
                 </table>
             </div>
             <!-- Search Form -->
-            <div class="col-4">
-                <form id="search-form">
-                    <!-- Full Length Fields -->
-                    <div class="form-group">
-                        <label for="first-name">First Name</label>
-                        <input type="text" class="form-control" id="first-name">
-                    </div>
-                    <div class="form-group">
-                        <label for="middle-name">Middle Name</label>
-                        <input type="text" class="form-control" id="middle-name">
-                    </div>
-                    <div class="form-group">
-                        <label for="last-name">Last Name</label>
-                        <input type="text" class="form-control" id="last-name">
-                    </div>
-                    <div class="form-group">
-                        <label for="street-name">Street Name</label>
-                        <input type="text" class="form-control" id="street-name">
-                    </div>
-
-                    <!-- Short length fields -->
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <label for="house-number">House Number</label>
-                            <input type="text" class="form-control short-input" id="house-number">
+            <div class="col-md-4">
+                <div class="form-container search-section">
+                    <form id="search-form">
+                        <!-- Full Length Fields -->
+                        <div class="form-group">
+                            <label for="first-name">First Name</label>
+                            <input type="text" class="form-control" id="first-name">
                         </div>
-                        <div class="form-group col-md-6">
-                            <label for="house-number-suffix">House Number Suffix</label>
-                            <input type="text" class="form-control short-input" id="house-number-suffix">
+                        <div class="form-group">
+                            <label for="middle-name">Middle Name</label>
+                            <input type="text" class="form-control" id="middle-name">
                         </div>
-                    </div>
-
-                    <!-- Direction and Post Direction -->
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <label for="direction">Direction</label>
-                            <select class="form-control" id="direction">
-                                <option value="">Select Direction</option>
-                            </select>
-                            <button type="button" class="btn btn-link" id="direction-options-toggle">Toggle Directions</button>
-                            <div id="direction-options" class="d-none"></div>
+                        <div class="form-group">
+                            <label for="last-name">Last Name</label>
+                            <input type="text" class="form-control" id="last-name">
                         </div>
-                        <div class="form-group col-md-6">
-                            <label for="post-direction">Post Direction</label>
-                            <select class="form-control" id="post-direction">
-                                <option value="">Select Post Direction</option>
-                            </select>
-                            <button type="button" class="btn btn-link" id="post-direction-options-toggle">Toggle Post Directions</button>
-                            <div id="post-direction-options" class="d-none"></div>
+                        <div class="form-group">
+                            <label for="street-name">Street Name</label>
+                            <input type="text" class="form-control" id="street-name">
                         </div>
-                    </div>
 
-                    <!-- Street Type -->
-                    <div class="form-group">
-                        <label for="street-type">Street Type</label>
-                        <select class="form-control" id="street-type">
-                            <option value="">Select Street Type</option>
-                        </select>
-                        <button type="button" class="btn btn-link" id="street-type-options-toggle">Toggle Street Types</button>
-                        <div id="street-type-options" class="d-none"></div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="apartment-number">Apartment Number</label>
-                        <input type="text" class="form-control short-input" id="apartment-number">
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <label for="city">City</label>
-                            <input type="text" class="form-control half-input" id="city">
+                        <!-- Short length fields -->
+                        <div class="form-row">
+                            <div class="form-group col-md-4">
+                                <label for="house-number">House Number</label>
+                                <input type="text" class="form-control short-input" id="house-number">
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label for="house-number-suffix">House Number Suffix</label>
+                                <input type="text" class="form-control short-input" id="house-number-suffix">
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label for="apartment-number">Apt. Number</label>
+                                <input type="text" class="form-control short-input" id="apartment-number">
+                            </div>
                         </div>
-                        <div class="form-group col-md-6">
-                            <label for="state">State</label>
-                            <select class="form-control" id="state">
-                                <option value="">Select State</option>
-                            </select>
+
+                        <!-- City and State -->
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="city">City</label>
+                                <input type="text" class="form-control" id="city">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="state">State</label>
+                                <select class="form-control" id="state">
+                                    <option value="">Select State</option>
+                                </select>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="form-group">
-                        <label for="zip-code">Zip Code</label>
-                        <input type="text" class="form-control short-input" id="zip-code">
-                    </div>
+                        <!-- Zip Code -->
+                        <div class="form-group">
+                            <label for="zip-code">Zip Code</label>
+                            <input type="text" class="form-control short-input" id="zip-code">
+                        </div>
 
-                    <button type="submit" class="btn btn-primary">Search</button>
-                    <button type="button" class="btn btn-danger" id="not-found">Not Found</button>
-                </form>
+                        <button type="submit" class="btn btn-primary">Search</button>
+                        <button type="button" class="btn btn-danger" id="not-found">Not Found</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

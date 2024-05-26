@@ -7,7 +7,7 @@ from .middleware import cloudflare_auth_middleware
 
 bp = Blueprint('main', __name__)
 
-@bp.before_request
+#@bp.before_request
 def before_request():
     zero_trust = os.getenv('ZERO_TRUST', 'false').lower() == 'true'
     if zero_trust:

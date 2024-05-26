@@ -36,8 +36,8 @@ def begin_era():
     from so_well.app import bp as main_bp
     app.register_blueprint(main_bp, url_prefix='/')
 
-    from .search.routes import search_bp
-    app.register_blueprint(search_bp)
+    #from .search.routes import search_bp
+    #app.register_blueprint(search_bp)
 
     # Import and register the signatures blueprint
     from .signatures.routes import signatures_bp
@@ -46,6 +46,10 @@ def begin_era():
     # Import and register the new advanced_search blueprint
     from .advanced_search.routes import advanced_search_bp
     app.register_blueprint(advanced_search_bp)
+
+    # Import and register the new advanced_search blueprint
+    from .print.routes import print_bp
+    app.register_blueprint(print_bp)
 
     # Initialize database and migration
     db.init_app(app)
@@ -56,11 +60,11 @@ def begin_era():
     if zero_trust:
         app.before_request(cloudflare_auth_middleware())
         logger.info("Zero Trust authentication enabled.")
-    else:
-        @app.before_request
-        def dummy_auth():
-            g.user_email = 'local_dev_user@example.com'
-            logger.info("Zero Trust authentication disabled. Using placeholder authentication.")
+    #else:
+        #@app.before_request
+        #def dummy_auth():
+          #  g.user_email = 'local_dev_user@example.com'
+           # logger.info("Zero Trust authentication disabled. Using placeholder authentication.")
 
     configure_logger()
     logger.info("🚀 Flask application configured and ready with PostgreSQL.")
