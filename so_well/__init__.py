@@ -51,6 +51,11 @@ def begin_era():
     from .print.routes import print_bp
     app.register_blueprint(print_bp)
 
+    # Sheets Blueprint
+    from .sheets.routes import sheets_bp
+    app.register_blueprint(sheets_bp)
+
+
     # Initialize database and migration
     db.init_app(app)
     migrate.init_app(app, db)
@@ -67,6 +72,6 @@ def begin_era():
            # logger.info("Zero Trust authentication disabled. Using placeholder authentication.")
 
     configure_logger()
-    logger.info("🚀 Flask application configured and ready with PostgreSQL.")
+
 
     return app
