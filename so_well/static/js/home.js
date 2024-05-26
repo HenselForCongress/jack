@@ -21,20 +21,20 @@ $(document).ready(function() {
         // Get total signatures
         let totalSignatures = Object.values(stats).reduce((a, b) => a + b, 0);
 
-        // Prepare data for the chart
-        let labels = Object.keys(stats);
-        let data = Object.values(stats);
-        let backgroundColors = ['#007bff', '#28a745', '#dc3545', '#ffc107'];
+        // Prepare data for the signature chart
+        let signatureLabels = Object.keys(stats);
+        let signatureData = Object.values(stats);
+        let signatureBackgroundColors = ['#007bff', '#28a745', '#dc3545', '#ffc107'];
 
-        // Create or update the chart
-        let ctx = document.getElementById('signatureChart').getContext('2d');
-        new Chart(ctx, {
+        // Create or update the signature chart
+        let signatureCtx = document.getElementById('signatureChart').getContext('2d');
+        new Chart(signatureCtx, {
             type: 'doughnut',
             data: {
-                labels: labels,
+                labels: signatureLabels,
                 datasets: [{
-                    data: data,
-                    backgroundColor: backgroundColors
+                    data: signatureData,
+                    backgroundColor: signatureBackgroundColors
                 }]
             },
             options: {
@@ -52,6 +52,58 @@ $(document).ready(function() {
                                 let percentage = ((value / totalSignatures) * 100).toFixed(2);
                                 return `${label}: ${value} (${percentage}%)`;
                             }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Example data for sheet status chart (replace with real data as needed)
+        let statusLabels = ['Printed', 'Signing', 'Summarizing', 'Closed', 'Pre-shipment', 'Shipped', 'Submission', 'Complete'];
+        let statusData = [191, 12, 8, 0, 0, 0, 7, 2]; // Example values
+        let statusBackgroundColors = ['#6c757d', '#17a2b8', '#ffc107', '#28a745', '#fd7e14', '#dc3545', '#007bff', '#6f42c1'];
+
+        // Create or update the sheet status chart
+        let statusCtx = document.getElementById('statusChart').getContext('2d');
+        new Chart(statusCtx, {
+            type: 'bar',
+            data: {
+                labels: statusLabels,
+                datasets: [{
+                    data: statusData,
+                    backgroundColor: statusBackgroundColors
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                let label = tooltipItem.label || '';
+                                let value = tooltipItem.raw;
+                                return `${label}: ${value}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Status'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Count'
                         }
                     }
                 }

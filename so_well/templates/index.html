@@ -11,21 +11,41 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <div class="container text-center mt-5">
+    <header class="bg-primary text-white text-center py-4">
         <h1>Voter Verification</h1>
-        <button type="button" class="btn btn-primary mt-4" onclick="location.href='/entry'">Enter Signatures</button>
-        <button type="button" class="btn btn-primary mt-4" onclick="location.href='/print'">Print Summary Sheets</button>
-        <button type="button" class="btn btn-primary mt-4" onclick="location.href='/sheets'">Manage Petition Sheets</button>
+        <p class="lead">Manage and verify your voter signatures effectively</p>
+    </header>
+    <div class="container mt-5">
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <button type="button" class="btn btn-primary btn-block" onclick="location.href='/entry'">Enter Signatures</button>
+            </div>
+            <div class="col-md-4">
+                <button type="button" class="btn btn-primary btn-block" onclick="location.href='/print'">Print Summary Sheets</button>
+            </div>
+            <div class="col-md-4">
+                <button type="button" class="btn btn-primary btn-block" onclick="location.href='/sheets'">Manage Petition Sheets</button>
+            </div>
+        </div>
 
         <!-- Statistics Section -->
-        <div class="mt-5" id="stats-section">
-            <h2>Signature Statistics</h2>
-            <div class="chart-container">
-                <canvas id="signatureChart"></canvas>
+        <div id="stats-section" class="mb-5">
+            <h2 class="text-center">Signature Statistics</h2>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="chart-container">
+                        <canvas id="signatureChart"></canvas>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="chart-container">
+                        <canvas id="statusChart"></canvas>
+                    </div>
+                </div>
             </div>
-            <div class="mt-4">
+            <div class="mt-4 text-center">
                 <h4>Progress toward 1,000 Matched Signatures</h4>
-                <div class="progress">
+                <div class="progress mx-auto" style="width: 50%;">
                     <div class="progress-bar" role="progressbar" style="width: 0%;" id="progress-bar">0%</div>
                 </div>
             </div>
