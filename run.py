@@ -8,7 +8,7 @@ def main():
    # with app.app_context():
     #    loader.load_data('data/Registered_Voter_List.csv')
 
-    logger.info("🚀 Starting Donation Reporter")
+    logger.info("🚀 Jack is writing...")
     try:
         # Hosting the Flask application
         # Set the Flask environment to development

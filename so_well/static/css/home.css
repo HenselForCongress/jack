@@ -1,11 +1,44 @@
 /* Home Page Styles | so_well/static/css/home.css */
 /* ---------------------------------------------------------- */
 
+body {
+    font-family: 'Montserrat', sans-serif;
+    background-color: var(--color-lightgrey);
+    color: var(--color-darkgrey);
+}
+
+header {
+    background-color: var(--color-primary-blue);
+    color: white;
+    padding: 20px 0;
+    margin-bottom: 30px;
+}
+
+header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0;
+}
+
+header p {
+    font-size: 1.25rem;
+    margin-bottom: 0;
+}
+
+.container {
+    max-width: 900px;
+    margin: auto;
+}
+
+.btn-block {
+    margin-bottom: 20px;
+}
+
 .chart-container {
     position: relative;
-    height: 400px; /* Adjust the height as necessary */
-    width: 400px;  /* Adjust the width as necessary */
-    margin: 0 auto; /* Center the chart */
+    height: 250px; /* Adjust the height for a more balanced appearance */
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
 }
 
 .progress {

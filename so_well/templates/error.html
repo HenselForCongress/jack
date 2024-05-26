@@ -1,0 +1,18 @@
+<!-- so_well/templates/error.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Error</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center text-danger">An Error Occurred</h1>
+        <p class="text-center">{{ message }}</p>
+        <div class="text-center">
+            <a href="{{ url_for('sheets.show_sheets') }}" class="btn btn-primary">Go Back</a>
+        </div>
+    </div>
+</body>
+</html>
