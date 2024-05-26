@@ -1,6 +1,34 @@
 /* Global Styles | so_well/static/css/global.css */
 /* ---------------------------------------------------------- */
 
+:root {
+    /* Colors */
+    --color-green: #a4d037;
+    --color-yellow: #fecd35;
+    --color-red: #f05230;
+    --color-darkgrey: #15171a;
+    --color-midgrey: #738a94;
+    --color-lightgrey: #f1f1f1;
+    --color-secondary-text: #979797;
+    --color-border: #e1e1e1;
+    --color-wash: #e5eff5;
+    --color-darkmode: #151719;
+    --color-primary-blue: #3066BD;
+
+    /* Area Specific Colors */
+    --color-footer: var(--color-primary-blue);
+
+
+    /* Fonts */
+    --font-sans: 'Montserrat', -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+        "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+        "Helvetica Neue", sans-serif;
+    --font-serif: 'Montserrat', Georgia, Times, serif;
+    --font-mono: 'Montserrat', Menlo, Courier, monospace;
+}
+
+
+
 .header-bar {
     background-color: #007bff;
     padding: 15px;

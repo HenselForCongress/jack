@@ -1,2 +1,21 @@
 /* Sheets Styles | so_well/static/css/sheets.css */
 /* ---------------------------------------------------------- */
+
+
+@import "global.css";
+
+
+.container {
+    width: 60%;
+    margin: auto;
+    text-align: center;
+}
+
+.status-overview {
+    margin-bottom: 2rem;
+}
+
+.update-section, .close-section {
+    margin-bottom: 2rem;
+}
+

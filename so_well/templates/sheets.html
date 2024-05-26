@@ -1,1 +1,43 @@
 <!-- so_well/templates/sheets.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sheet Status Management</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/sheets.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Sheet Status Management</h1>
+        <div class="status-overview">
+            <h2>Sheets Status Overview</h2>
+            <ul>
+                {% for status in ordered_statuses %}
+                <li>
+                    <strong>{{ status.description }}</strong>: {{ status_counts.get(status.status, 0) }}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="update-section">
+            <h2>Update Sheet Status</h2>
+            <input type="number" id="sheet-number" placeholder="Enter Sheet Number">
+            <button id="update-status">Update Status</button>
+        </div>
+        <div class="close-section">
+            <h2>Close Sheet</h2>
+            <input type="number" id="close-sheet-number" placeholder="Enter Sheet Number">
+            <select id="notary-selector">
+                <!-- Notary Options will be populated here -->
+            </select>
+            <input type="date" id="notarized-date" placeholder="Notarized Date">
+            <select id="circulator-selector">
+                <!-- Circulator Options will be populated here -->
+            </select>
+            <button id="close-sheet">Close Sheet</button>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/sheets.js') }}"></script>
+</body>
+</html>
