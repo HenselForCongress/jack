@@ -1,4 +1,4 @@
-# so_well/sheets/__init__.py
+# so_well/sheets/models.py
 from sqlalchemy.orm import relationship, backref
 from ..models import db, func
 
