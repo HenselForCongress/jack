@@ -10,27 +10,40 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 5000);
     }
 
-    document.querySelectorAll('.add-to-batch').forEach(button => {
-        button.addEventListener('click', async function() {
-            const sheetId = this.getAttribute('data-sheet-id');
-            const response = await fetch('/batches/add_to_batch', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ sheet_id: sheetId })
-            });
+    let selectedSheetId = null;
 
-            const data = await response.json();
-            if (data.success) {
-                showNotification(`Sheet ${sheetId} added to batch ${data.batch_id}`, 'success');
-                this.disabled = true;
-                // Refresh the page to show updated status
-                setTimeout(function() {
-                    location.reload();
-                }, 500); // Adjust delay if necessary
-            } else {
-                showNotification(data.error || 'Failed to add sheet to batch', 'danger');
-            }
+    document.querySelectorAll('.add-to-batch').forEach(button => {
+        button.addEventListener('click', function() {
+            selectedSheetId = this.getAttribute('data-sheet-id');
+            $('#confirmationModal').modal('show');
         });
+    });
+
+    document.getElementById('confirmAddToBatch').addEventListener('click', async function() {
+        const printedSummarySheet = document.getElementById('printedSummarySheet').checked;
+        const photoOfBothSides = document.getElementById('photoOfBothSides').checked;
+
+        if (!printedSummarySheet || !photoOfBothSides) {
+            showNotification('Please confirm all required actions before adding to batch.', 'danger');
+            return;
+        }
+
+        const response = await fetch('/batches/add_to_batch', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sheet_id: selectedSheetId })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            showNotification(`Sheet ${selectedSheetId} added to batch ${data.batch_id}`, 'success');
+            $('#confirmationModal').modal('hide');
+            setTimeout(function() {
+                location.reload();
+            }, 500);
+        } else {
+            showNotification(data.error || 'Failed to add sheet to batch', 'danger');
+        }
     });
 
     document.getElementById('close-batch').addEventListener('click', async function() {
