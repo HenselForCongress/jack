@@ -126,7 +126,9 @@ td.left {
 }
 
 @media print {
-    .input-section {
+    .input-section,
+    .navbar,
+    footer {
         display: none;
     }
 
