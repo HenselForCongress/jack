@@ -2,8 +2,8 @@
 // Function to format date as MM/DD/YYYY
 function formatDate(dateStr) {
     if (!dateStr) return '';
-    const date = new Date(dateStr);
-    return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
+    const date = new Date(dateStr + 'T00:00:00Z');  // Treat as UTC
+    return `${date.getUTCMonth() + 1}/${date.getUTCDate()}/${date.getUTCFullYear()}`;
 }
 
 // Function to format Voter ID
