@@ -1,0 +1,86 @@
+/* Sheets Styles | so_well/static/css/sheets.css */
+/* ---------------------------------------------------------- */
+
+@import "https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap";
+@import "global.css";
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    background-color: var(--color-lightgrey);
+    color: var(--color-darkgrey);
+}
+
+.container {
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    font-size: 2.5rem;
+    color: var(--color-primary-blue);
+}
+
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    border-radius: 10px 10px 0 0;
+    padding: 15px;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+.list-group-item {
+    border: none;
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.list-group-item:last-child {
+    border-bottom: none;
+}
+
+.btn {
+    font-size: 1rem;
+    padding: 10px 20px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+    background-color: darken(var(--color-primary-blue), 10%);
+}
+
+.input-group {
+    margin-bottom: 15px;
+}
+
+.input-group-append .btn {
+    border-radius: 0 5px 5px 0;
+}
+
+.input-group .form-control {
+    border-radius: 5px 0 0 5px;
+}
+
+.input-group .form-control:last-child {
+    border-radius: 5px;
+}
+
+.input-group .form-control::placeholder {
+    color: var(--color-midgrey);
+}
+
+/* Notification Styles */
+.alert {
+    margin-top: 15px;
+}

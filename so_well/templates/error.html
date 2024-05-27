@@ -1,0 +1,12 @@
+<!-- so_well/templates/error.html -->
+{% include 'header.html' %}
+
+<div class="container mt-5">
+    <h1 class="text-center text-danger">An Error Occurred</h1>
+    <p class="text-center">{{ message }}</p>
+    <div class="text-center">
+        <a href="{{ url_for('sheets.show_sheets') }}" class="btn btn-primary">Go Back</a>
+    </div>
+</div>
+
+{% include 'footer.html' %}

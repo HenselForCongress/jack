@@ -1,5 +1,12 @@
+# Dockerfile
 # Use an official Python image
 FROM python:3.12-slim
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install Poetry
 RUN pip install --upgrade pip \
@@ -16,11 +23,10 @@ WORKDIR /app
 COPY pyproject.toml poetry.lock* /app/
 
 # Install runtime dependencies using Poetry
-RUN poetry install --no-dev
+RUN poetry install --only main
 
 # Copy the rest of the code
 COPY . /app/
 
 # Command to run the application
 CMD ["python3", "-m", "run"]
-

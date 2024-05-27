@@ -1,0 +1,59 @@
+/* Home Page Styles | so_well/static/css/home.css */
+/* ---------------------------------------------------------- */
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    background-color: var(--color-lightgrey);
+    color: var(--color-darkgrey);
+}
+
+header {
+    background-color: var(--color-primary-blue);
+    color: white;
+    padding: 20px 0;
+    margin-bottom: 30px;
+}
+
+header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0;
+}
+
+header p {
+    font-size: 1.25rem;
+    margin-bottom: 0;
+}
+
+.container {
+    max-width: 900px;
+    margin: auto;
+}
+
+.btn-block {
+    margin-bottom: 20px;
+}
+
+.chart-container {
+    position: relative;
+    height: 250px; /* Adjust the height for a more balanced appearance */
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.progress {
+    height: 30px;
+    background-color: #e9ecef;
+    margin-top: 20px;
+    border-radius: 8px;
+}
+
+.progress-bar {
+    background-color: #28a745;
+    font-weight: bold;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+}

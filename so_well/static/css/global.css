@@ -1,0 +1,68 @@
+/* Global Styles | so_well/static/css/global.css */
+/* ---------------------------------------------------------- */
+
+:root {
+    /* Colors */
+    --color-green: #a4d037;
+    --color-yellow: #fecd35;
+    --color-red: #f05230;
+    --color-darkgrey: #15171a;
+    --color-midgrey: #738a94;
+    --color-lightgrey: #f1f1f1;
+    --color-secondary-text: #979797;
+    --color-border: #e1e1e1;
+    --color-wash: #e5eff5;
+    --color-darkmode: #151719;
+    --color-primary-blue: #3066BD;
+
+    /* Area Specific Colors */
+    --color-footer: var(--color-primary-blue);
+
+    /* Fonts */
+    --font-sans: 'Montserrat', -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+        "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+        "Helvetica Neue", sans-serif;
+    --font-serif: 'Montserrat', Georgia, Times, serif;
+    --font-mono: 'Montserrat', Menlo, Courier, monospace;
+}
+
+.header-bar {
+    background-color: #007bff;
+    padding: 15px;
+    color: white;
+    margin-bottom: 20px;
+}
+
+.sticky-table-header {
+    position: sticky;
+    top: 0;
+    background-color: white;
+    z-index: 2;
+}
+
+/* Footer */
+.paidForBox {
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid black;
+    text-align: center;
+    background-color: white;
+    color: black;
+    width: auto;
+    max-width: 60%;
+}
+
+.footer-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.footer-links {
+    list-style: none;
+    padding: 0;
+}
+.footer-links li {
+    display: inline;
+    margin: 0 10px;
+}

@@ -1,0 +1,115 @@
+<!-- so_well/templates/batches.html -->
+{% include 'header.html' %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/batches.css') }}">
+
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Batch Management</h1>
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0">Closed Sheets</h2>
+        </div>
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Sheet Number</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sheet in closed_sheets %}
+                    <tr>
+                        <td>{{ sheet.id }}</td>
+                        <td>
+                            <button class="btn btn-success add-to-batch" data-sheet-id="{{ sheet.id }}">Add to Current Batch</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmationModalLabel">Confirm Actions</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="confirmationForm">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="printedSummarySheet">
+                            <label class="form-check-label" for="printedSummarySheet">
+                                I have printed the summary sheet.
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="photoOfBothSides">
+                            <label class="form-check-label" for="photoOfBothSides">
+                                I have taken photos of both sides of the petition and the printed summary sheet.
+                            </label>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="confirmAddToBatch">Add to Batch</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-info text-white">
+            <h2 class="mb-0">Current Building Batch</h2>
+        </div>
+        <div class="card-body">
+            {% if building_batch %}
+            <h5>Batch ID: {{ building_batch.id }}</h5>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Sheet Number</th>
+                        <th>Total Signatures</th>
+                        <th>Valid Signatures</th>
+                        <th>Valid Rate (%)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sheet in batch_sheets %}
+                    <tr>
+                        <td>{{ sheet.sheet_number }}</td>
+                        <td>{{ sheet.total_signatures }}</td>
+                        <td>{{ sheet.valid_signatures }}</td>
+                        <td>{{ "%.2f" | format(sheet.valid_rate) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <h3>Total Stats for Current Batch</h3>
+            <p>Total Signatures: {{ total_signatures }}</p>
+            <p>Valid Signatures: {{ total_valid_signatures }}</p>
+            <p>Valid Rate: {{ "%.2f" | format(total_valid_rate) }}%</p>
+
+            <button class="btn btn-warning" id="close-batch">Close Batch</button>
+            <div id="shipping-info" style="display: none;">
+                <input type="text" id="carrier" class="form-control mb-2" placeholder="Carrier">
+                <input type="text" id="tracking-number" class="form-control mb-2" placeholder="Tracking Number">
+                <input type="date" id="ship-date" class="form-control mb-2" placeholder="Ship Date">
+                <button id="confirm-shipment" class="btn btn-success">Ship Batch</button>
+            </div>
+            {% else %}
+            <p>No batch is currently being built.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script src="{{ url_for('static', filename='js/batches.js') }}"></script>
+{% include 'footer.html' %}

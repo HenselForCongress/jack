@@ -8,14 +8,13 @@ def main():
    # with app.app_context():
     #    loader.load_data('data/Registered_Voter_List.csv')
 
-    logger.info("🚀 Starting Donation Reporter")
+    logger.info("🚀 Jack is writing...")
     try:
         # Hosting the Flask application
         # Set the Flask environment to development
         app.config['ENV'] = 'development'
         app.config['DEBUG'] = True
         app.run(host=os.getenv('HOST', '0.0.0.0'), port=int(os.getenv('APP_PORT', 5000)))
-        logger.info("😃 Application is up and running smoothly.")
     except Exception as e:
         logger.error("💥 An unexpected error occurred: %s", str(e), exc_info=True)
 

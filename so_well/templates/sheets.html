@@ -1,0 +1,89 @@
+<!-- so_well/templates/sheets.html -->
+{% include 'header.html' %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/sheets.css') }}">
+
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Sheet Status Management</h1>
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0">Sheets in Summarizing Status</h2>
+        </div>
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Sheet Number</th>
+                        <th>Total Signatures</th>
+                        <th>Valid Signatures</th>
+                        <th>Valid Rate (%)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sheet in sheet_data %}
+                    <tr>
+                        <td>{{ sheet.sheet_number }}</td>
+                        <td>{{ sheet.total_signatures }}</td>
+                        <td>{{ sheet.valid_signatures }}</td>
+                        <td>{{ "%.2f" | format(sheet.valid_rate) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card mb-4">
+        <div class="card-header bg-success text-white">
+            <h2 class="mb-0">Distribute Printed Sheets</h2>
+        </div>
+        <div class="card-body">
+            <div class="input-group mb-3">
+                <input type="number" class="form-control" id="distribute-sheet-number" placeholder="Enter Sheet Number">
+                <div class="input-group-append">
+                    <button class="btn btn-success" id="distribute-status">Distribute Sheet</button>
+                </div>
+            </div>
+            <div id="distribute-notification" class="alert" role="alert" style="display: none;"></div>
+        </div>
+    </div>
+    <div class="card mb-4">
+        <div class="card-header bg-info text-white">
+            <h2 class="mb-0">Intake Sheets</h2>
+        </div>
+        <div class="card-body">
+            <div class="input-group mb-3">
+                <input type="number" class="form-control" id="intake-sheet-number" placeholder="Enter Sheet Number">
+                <div class="input-group-append">
+                    <button class="btn btn-info" id="intake-status">Intake Sheet</button>
+                </div>
+            </div>
+            <div id="intake-notification" class="alert" role="alert" style="display: none;"></div>
+        </div>
+    </div>
+    <div class="card mb-4">
+        <div class="card-header bg-warning text-white">
+            <h2 class="mb-0">Close Sheet</h2>
+        </div>
+        <div class="card-body">
+            <div class="input-group mb-3">
+                <input type="number" class="form-control" id="close-sheet-number" placeholder="Enter Sheet Number">
+            </div>
+            <div class="input-group mb-3">
+                <select class="form-control" id="notary-selector">
+                    <!-- Notary Options will be populated here -->
+                </select>
+            </div>
+            <div class="input-group mb-3">
+                <input type="date" class="form-control" id="notarized-date" placeholder="Notarized Date">
+            </div>
+            <div class="input-group mb-3">
+                <select class="form-control" id="circulator-selector">
+                    <!-- Circulator Options will be populated here -->
+                </select>
+            </div>
+            <button class="btn btn-warning btn-block" id="close-sheet">Close Sheet</button>
+            <div id="close-notification" class="alert" role="alert" style="display: none;"></div>
+        </div>
+    </div>
+</div>
+<script src="{{ url_for('static', filename='js/sheets.js') }}"></script>
+{% include 'footer.html' %}
