@@ -1,0 +1,38 @@
+<!-- so_well/templates/header.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Voter Petition Manager</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4 sticky-top">
+        <a class="navbar-brand" href="#">Voter Petition Manager</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/entry">Voter Search</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/sheets">Sheets</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/print">Printer</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/batches">Batches</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="https://github.com/HenselForCongress/jack/tree/main/docs" target="_blank">Docs</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
