@@ -1,0 +1,9 @@
+Changelog
+
+v1.3.0
+- Added Headers & Footers
+- Added Batch Management System
+- Added Sheet Management System
+- Improved Print Functionality
+- Fixed reason for failing CI job(s)
+- Error page

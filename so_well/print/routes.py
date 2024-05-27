@@ -4,6 +4,7 @@ from flask import Blueprint, request, render_template, jsonify
 from sqlalchemy import text
 from ..models import db
 from ..utils import logger
+from datetime import date
 
 print_bp = Blueprint('print_bp', __name__)
 
@@ -61,6 +62,9 @@ def fetch_data():
             s.id = :sheet_id;
     """)
 
+    def serialize_date(value):
+        return value.isoformat() if isinstance(value, date) else value
+
     try:
         data_result = db.session.execute(search_query, {'sheet_id': sheet_number})
         data = [dict(row) for row in data_result.mappings()]
@@ -73,7 +77,9 @@ def fetch_data():
         full_data = []
         for i in range(1, 13):
             if i in data_dict:
-                full_data.append(data_dict[i])
+                entry = data_dict[i]
+                entry['dateSigned'] = serialize_date(entry['dateSigned'])
+                full_data.append(entry)
             else:
                 full_data.append({
                     'row': i,
@@ -91,7 +97,7 @@ def fetch_data():
 
         # Convert sheet_info to a dictionary if it's not None
         if sheet_info:
-            sheet_info_dict = {column: value for column, value in zip(sheet_result.keys(), sheet_info)}
+            sheet_info_dict = {column: serialize_date(value) for column, value in zip(sheet_result.keys(), sheet_info)}
         else:
             sheet_info_dict = {}
 
