@@ -18,7 +18,6 @@
     /* Area Specific Colors */
     --color-footer: var(--color-primary-blue);
 
-
     /* Fonts */
     --font-sans: 'Montserrat', -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
         "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
@@ -26,8 +25,6 @@
     --font-serif: 'Montserrat', Georgia, Times, serif;
     --font-mono: 'Montserrat', Menlo, Courier, monospace;
 }
-
-
 
 .header-bar {
     background-color: #007bff;
@@ -41,4 +38,31 @@
     top: 0;
     background-color: white;
     z-index: 2;
+}
+
+/* Footer */
+.paidForBox {
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid black;
+    text-align: center;
+    background-color: white;
+    color: black;
+    width: auto;
+    max-width: 60%;
+}
+
+.footer-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.footer-links {
+    list-style: none;
+    padding: 0;
+}
+.footer-links li {
+    display: inline;
+    margin: 0 10px;
 }

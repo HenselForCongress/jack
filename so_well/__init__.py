@@ -55,6 +55,10 @@ def begin_era():
     from .sheets.routes import sheets_bp
     app.register_blueprint(sheets_bp)
 
+    # Batches Blueprint
+    from .batches.routes import batches_bp
+    app.register_blueprint(batches_bp)
+
 
     # Initialize database and migration
     db.init_app(app)
