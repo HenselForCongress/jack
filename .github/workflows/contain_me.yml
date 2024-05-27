@@ -44,7 +44,7 @@ jobs:
             latest=${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
           images: |
             ${{ env.GHCR_REGISTRY }}/${{ env.IMAGE_NAME }}
-            ${{ env.DOCKERHUB_REGISTRY }}/${{ env.IMAGE_NAME }}
+          #  ${{ env.DOCKERHUB_REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=raw,value=latest,priority=100,enable=${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
             type=sha,enable=true,prefix={{branch}}-,suffix=,format=short,priority=300
