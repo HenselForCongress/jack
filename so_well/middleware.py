@@ -31,7 +31,8 @@ if not SERVICE_TOKEN_ID or not SERVICE_TOKEN_SECRET:
 if not POLICY_AUD:
     raise ValueError("POLICY_AUD environment variable is not set")
 
-CERTS_URL = f"https://{TEAM_DOMAIN}/cdn-cgi/access/certs"
+HTTPS_TEAM_DOMAIN = f"https://{TEAM_DOMAIN}"
+CERTS_URL = f"{HTTPS_TEAM_DOMAIN}/cdn-cgi/access/certs"
 logger.debug(f"CERTS_URL: {CERTS_URL}")
 
 def _get_public_keys():
@@ -76,7 +77,7 @@ def cloudflare_auth_middleware():
                     audience=POLICY_AUD
                 )
                 logger.debug(f"Payload: {payload}")
-                if payload.get('iss') != TEAM_DOMAIN:
+                if payload.get('iss') != HTTPS_TEAM_DOMAIN:
                     logger.warning("Invalid token issuer")
                     return jsonify({"message": "Invalid token issuer"}), 403
 
