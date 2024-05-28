@@ -69,11 +69,11 @@ def begin_era():
     if zero_trust:
         app.before_request(cloudflare_auth_middleware())
         logger.info("Zero Trust authentication enabled.")
-    #else:
-        #@app.before_request
-        #def dummy_auth():
-          #  g.user_email = 'local_dev_user@example.com'
-           # logger.info("Zero Trust authentication disabled. Using placeholder authentication.")
+    else:
+        @app.before_request
+        def dummy_auth():
+            g.user_email = 'local_dev_user@example.com'
+            logger.info("Zero Trust authentication disabled. Using placeholder authentication.")
 
     configure_logger()
 
