@@ -23,7 +23,7 @@ WORKDIR /app
 COPY pyproject.toml poetry.lock* /app/
 
 # Install runtime dependencies using Poetry
-RUN poetry install --only main
+RUN poetry install --only main || (poetry lock --no-update && poetry install --only main)
 
 # Copy the rest of the code
 COPY . /app/
