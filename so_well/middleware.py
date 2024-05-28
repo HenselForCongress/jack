@@ -16,7 +16,7 @@ if not TEAM_DOMAIN:
 if not SERVICE_TOKEN_ID or not SERVICE_TOKEN_SECRET:
     raise ValueError("Service token ID or secret is not set")
 
-CERTS_URL = f"{TEAM_DOMAIN}/cdn-cgi/access/certs"
+CERTS_URL = f"https://{TEAM_DOMAIN}/cdn-cgi/access/certs"
 
 def _get_public_keys():
     try:
