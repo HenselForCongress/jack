@@ -1,0 +1,66 @@
+<!-- templates/sheet_lookup.html -->
+{% include 'header.html' %}
+<div class="container">
+    <h2>Sheet Lookup</h2>
+    <p>Sheet ID: <strong id="sheet-id">{{ sheet_id }}</strong></p>
+    <table class="table table-striped" id="results-table">
+        <thead>
+            <tr>
+                <th>Row</th>
+                <th>Voter ID</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Address</th>
+                <th>Apt #</th>
+                <th>City</th>
+                <th>State</th>
+                <th>Zip Code</th>
+                <th>Signed On</th>
+                <th>SSN 4</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Data rows will be inserted by JavaScript -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+    function fetchSheetData() {
+        const sheetId = document.getElementById('sheet-id').textContent;
+        fetch(`/sheets/lookup/fetch_data?sheet_id=${sheetId}`)
+            .then(response => response.json())
+            .then(data => {
+                const resultsTableBody = document.getElementById('results-table').querySelector('tbody');
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+
+                const { data: rows, sheet_info } = data;
+                resultsTableBody.innerHTML = rows.map((row, index) => `
+                    <tr>
+                        <td>${row.row}</td>
+                        <td>${row.voterId}</td>
+                        <td>${row.firstName}</td>
+                        <td>${row.lastName}</td>
+                        <td>${row.address1}</td>
+                        <td>${row.address2}</td>
+                        <td>${row.city}</td>
+                        <td>${row.state}</td>
+                        <td>${row.zip}</td>
+                        <td>${row.dateSigned}</td>
+                        <td>${row.ssnLast4}</td>
+                    </tr>
+                `).join('');
+            })
+            .catch(error => console.error('Error fetching data:', error));
+    }
+
+    // Fetch data every 5 seconds
+    setInterval(fetchSheetData, 5000);
+
+    // Fetch data immediately on page load
+    fetchSheetData();
+</script>
+{% include 'footer.html' %}
