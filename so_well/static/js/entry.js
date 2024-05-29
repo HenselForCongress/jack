@@ -1,3 +1,5 @@
+// so_well/static/js/entry.js
+
 $(document).ready(function () {
     console.log("Document ready - initializing");
 
@@ -18,6 +20,32 @@ $(document).ready(function () {
     $('#not-found').on('click', function () {
         console.log("Not Found clicked");
         $('#not-found-modal').modal('show');
+        // Set focus to the first field when the not-found modal opens
+        $('#nf-row-number').focus();
+
+        // Auto-fill modal sheet number and date
+        $('#nf-sheet-number').val($('#header-sheet-number').val());
+
+        let month = $('#header-month').val();
+        let day = $('#header-day').val() || '01'; // Use '01' if day is empty
+        let year = $('#header-year').val();
+        let dateSigned = null;
+
+        if (month && day && year) {
+            dateSigned = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+        } else if (month && year) {
+            dateSigned = `${year}-${month.padStart(2, '0')}-01`;
+        } else if (year) {
+            dateSigned = `${year}-01-01`;
+        }
+
+        $('#nf-date-signed').val(dateSigned);
+
+        // Hide middle name field
+        $('#nf-middle-name').closest('.form-group').hide();
+
+        // Fetch the next available row number
+        fetchNextAvailableRowNumber($('#nf-sheet-number').val(), '#nf-row-number');
     });
 
     $('#results-table').on('click', '.btn-match', function () {
@@ -43,26 +71,15 @@ $(document).ready(function () {
         }
 
         $('#date-collected').val(collectedDate);
+
+        // Fetch the next available row number
+        fetchNextAvailableRowNumber($('#sheet-number').val(), '#row-number');
     });
 
     $('#match-modal').on('show.bs.modal', function () {
         const sheetNumber = $('#header-sheet-number').val();
-        if (sheetNumber) {
-            $.ajax({
-                type: 'GET',
-                url: '/sheets/get_max_row_number',
-                data: { sheet_id: sheetNumber },
-                success: function (response) {
-                    const maxRowNumber = response.max_row_number || 0;
-                    $('#row-number').val(maxRowNumber + 1);
-                },
-                error: function (xhr, status, error) {
-                    console.error('Error fetching max row number:', error);
-                }
-            });
-        } else {
-            $('#row-number').val(1); // Default to 1 if no sheet number is set.
-        }
+        // Fetch the next available row number
+        fetchNextAvailableRowNumber(sheetNumber, '#row-number');
     });
 
     $('#match-form').on('submit', function (e) {
@@ -129,7 +146,6 @@ $(document).ready(function () {
             row_number: $('#nf-row-number').val(),
             date_collected: $('#nf-date-signed').val(),
             first_name: $('#nf-first-name').val(),
-            middle_name: $('#nf-middle-name').val(),
             last_name: $('#nf-last-name').val(),
             address: $('#nf-address').val(),
             apartment_number: $('#nf-apartment-number').val(),
@@ -150,6 +166,11 @@ $(document).ready(function () {
                 console.log("Not Found recorded successfully");
                 $('#not-found-modal').modal('hide');
                 showNotification('Successfully recorded!', 'success');
+
+                // Reset the form fields, preserving sheet number and date
+                $('#not-found-form').trigger("reset");
+                $('#nf-sheet-number').val($('#header-sheet-number').val());
+                $('#nf-date-signed').val($('#header-year').val() + '-' + $('#header-month').val().padStart(2, '0') + '-01');
             },
             error: function (xhr, status, error) {
                 console.error('Error recording Not Found:', error);
@@ -157,6 +178,43 @@ $(document).ready(function () {
             }
         });
     });
+
+    // Event handler for form submission using Enter key on the Not Found modal
+    $('#not-found-modal').keypress(function(e) {
+        if (e.which === 13) { // Enter key
+            $('#not-found-form').submit();
+        }
+    });
+
+    function fetchNextAvailableRowNumber(sheetNumber, rowNumberSelector) {
+        if (sheetNumber) {
+            $.ajax({
+                type: 'GET',
+                url: '/sheets/get_all_row_numbers',
+                data: { sheet_id: sheetNumber },
+                success: function (response) {
+                    let rowNumbers = response.row_numbers;
+                    let nextAvailableRow = getNextAvailableRowNumber(rowNumbers);
+                    $(rowNumberSelector).val(nextAvailableRow);
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error fetching row numbers:', error);
+                    $(rowNumberSelector).val(1); // Default to 1 if there's an error.
+                }
+            });
+        } else {
+            $(rowNumberSelector).val(1); // Default to 1 if no sheet number is set.
+        }
+    }
+
+    function getNextAvailableRowNumber(rowNumbers) {
+        for (let i = 1; i <= 12; i++) {
+            if (!rowNumbers.includes(i)) {
+                return i;
+            }
+        }
+        return 12; // Fallback to 12 if somehow all rows 1-11 are taken.
+    }
 
     function fetchStateOptions() {
         console.log("Fetching state options");
