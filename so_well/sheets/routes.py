@@ -232,3 +232,12 @@ def fetch_sheet_data(sheet_number):
         'sheet_info': sheet_info_dict
     }
     return response
+
+@sheets_bp.route('/get_max_row_number', methods=['GET'])
+def get_max_row_number():
+    sheet_id = request.args.get('sheet_id')
+    if not sheet_id:
+        return jsonify({'error': 'Missing sheet ID'}), 400
+
+    max_row_number = db.session.query(func.max(SignatureMatch.row_id)).filter_by(sheet_id=sheet_id).scalar()
+    return jsonify({'max_row_number': max_row_number})

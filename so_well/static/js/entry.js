@@ -47,10 +47,24 @@ $(document).ready(function() {
         $('#date-collected').val(collectedDate);
     });
 
-    $('#match-modal').on('show.bs.modal', function () {
-        // Auto-increment row number
-        let lastRowNumber = parseInt($('.last-row-number').last().text()) || 0;
-        $('#row-number').val(lastRowNumber + 1);
+    $('#match-modal').on('show.bs.modal', function() {
+        const sheetNumber = $('#header-sheet-number').val();
+        if (sheetNumber) {
+            $.ajax({
+                type: 'GET',
+                url: '/sheets/get_max_row_number',
+                data: { sheet_id: sheetNumber },
+                success: function(response) {
+                    const maxRowNumber = response.max_row_number || 0;
+                    $('#row-number').val(maxRowNumber + 1);
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error fetching max row number:', error);
+                }
+            });
+        } else {
+            $('#row-number').val(1); // Default to 1 if no sheet number is set.
+        }
     });
 
     $('#match-form').on('submit', function(e) {
