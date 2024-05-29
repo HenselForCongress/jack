@@ -241,3 +241,17 @@ def get_max_row_number():
 
     max_row_number = db.session.query(func.max(SignatureMatch.row_id)).filter_by(sheet_id=sheet_id).scalar()
     return jsonify({'max_row_number': max_row_number})
+
+@sheets_bp.route('/get_all_row_numbers', methods=['GET'])
+def get_all_row_numbers():
+    sheet_id = request.args.get('sheet_id')
+    if not sheet_id:
+        return jsonify({'error': 'Missing sheet ID'}), 400
+
+    try:
+        row_numbers = db.session.query(SignatureMatch.row_id).filter_by(sheet_id=sheet_id).all()
+        row_numbers_list = [row[0] for row in row_numbers]
+        return jsonify({'row_numbers': row_numbers_list})
+    except SQLAlchemyError as e:
+        logger.error('Database error: %s', e)
+        return jsonify({'error': 'An error occurred while fetching row numbers.'}), 500
