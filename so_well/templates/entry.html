@@ -1,6 +1,8 @@
-<!--templates/entry.html-->
+<!-- templates/entry.html -->
 {% include 'header.html' %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/entry.css') }}">
+
+<div id="notification" class="alert alert-info" role="alert" style="display: none;"></div> <!-- Notification area -->
 
 <div class="header-bar d-flex justify-content-between align-items-center">
     <div class="header-fields">

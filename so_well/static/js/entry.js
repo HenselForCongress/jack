@@ -1,6 +1,4 @@
-// so_well/static/js/entry.js
-
-$(document).ready(function() {
+$(document).ready(function () {
     console.log("Document ready - initializing");
 
     fetchStateOptions();
@@ -11,18 +9,18 @@ $(document).ready(function() {
     prepopulateDateFields();
 
     // Handle form submission and search
-    $('#search-form').on('submit', function(e) {
+    $('#search-form').on('submit', function (e) {
         e.preventDefault();
         console.log("Search form submitted");
         searchVoters(); // Trigger search
     });
 
-    $('#not-found').on('click', function() {
+    $('#not-found').on('click', function () {
         console.log("Not Found clicked");
         $('#not-found-modal').modal('show');
     });
 
-    $('#results-table').on('click', '.btn-match', function() {
+    $('#results-table').on('click', '.btn-match', function () {
         let voterData = $(this).data('voter');
         console.log("Match button clicked", voterData);
         $('#match-modal').data('voter', voterData).modal('show');
@@ -47,18 +45,18 @@ $(document).ready(function() {
         $('#date-collected').val(collectedDate);
     });
 
-    $('#match-modal').on('show.bs.modal', function() {
+    $('#match-modal').on('show.bs.modal', function () {
         const sheetNumber = $('#header-sheet-number').val();
         if (sheetNumber) {
             $.ajax({
                 type: 'GET',
                 url: '/sheets/get_max_row_number',
                 data: { sheet_id: sheetNumber },
-                success: function(response) {
+                success: function (response) {
                     const maxRowNumber = response.max_row_number || 0;
                     $('#row-number').val(maxRowNumber + 1);
                 },
-                error: function(xhr, status, error) {
+                error: function (xhr, status, error) {
                     console.error('Error fetching max row number:', error);
                 }
             });
@@ -67,8 +65,34 @@ $(document).ready(function() {
         }
     });
 
-    $('#match-form').on('submit', function(e) {
+    $('#match-form').on('submit', function (e) {
         e.preventDefault();
+        if (validateMatchForm()) {
+            submitMatchForm();
+        }
+    });
+
+    // Listen for the Enter key on the match modal and trigger submit
+    $('#match-modal').keypress(function(e) {
+        if (e.which === 13) { // Enter key
+            if (validateMatchForm()) {
+                submitMatchForm();
+            }
+        }
+    });
+
+    function validateMatchForm() {
+        let isValid = true;
+        $('#match-form').find('input[required]').each(function() {
+            if ($(this).val() === '') {
+                isValid = false;
+                return false; // Exit each loop
+            }
+        });
+        return isValid;
+    }
+
+    function submitMatchForm() {
         let voterData = $('#match-modal').data('voter');
         let formData = {
             sheet_number: $('#sheet-number').val(),
@@ -86,7 +110,7 @@ $(document).ready(function() {
             success: function(data) {
                 console.log("Match recorded successfully");
                 $('#match-modal').modal('hide');
-                alert('Successfully recorded!');
+                showNotification('Successfully recorded!', 'success');
                 resetFormFields(); // Clear the form fields after successful submission
 
                 // Automatically focus on "First Name" field
@@ -96,9 +120,9 @@ $(document).ready(function() {
                 console.error('Error recording match:', error);
             }
         });
-    });
+    }
 
-    $('#not-found-form').on('submit', function(e) {
+    $('#not-found-form').on('submit', function (e) {
         e.preventDefault();
         let formData = {
             sheet_number: $('#nf-sheet-number').val(),
@@ -122,18 +146,14 @@ $(document).ready(function() {
             url: '/signatures/verify',
             contentType: 'application/json',
             data: JSON.stringify(formData),
-            success: function(data) {
+            success: function (data) {
                 console.log("Not Found recorded successfully");
                 $('#not-found-modal').modal('hide');
-                alert('Successfully recorded!');
-                resetFormFields(); // Clear the search form fields
-
-                // Automatically focus on "First Name" field
-                $('#first-name').focus();
+                showNotification('Successfully recorded!', 'success');
             },
-            error: function(xhr, status, error) {
+            error: function (xhr, status, error) {
                 console.error('Error recording Not Found:', error);
-                alert(`Error: ${xhr.responseJSON.error}`);
+                showNotification(`Error: ${xhr.responseJSON.error}`, 'danger');
             }
         });
     });
@@ -143,13 +163,13 @@ $(document).ready(function() {
         $.ajax({
             url: '/advanced_search/states',
             method: 'GET',
-            success: function(data) {
+            success: function (data) {
                 console.log('States data:', data);
-                data.forEach(function(state) {
+                data.forEach(function (state) {
                     $('#state').append(`<option value="${state}">${state}</option>`);
                 });
             },
-            error: function(xhr, status, error) {
+            error: function (xhr, status, error) {
                 console.error('Error fetching state options:', error);
             }
         });
@@ -160,16 +180,16 @@ $(document).ready(function() {
         $.ajax({
             url: '/advanced_search/directions',
             method: 'GET',
-            success: function(data) {
+            success: function (data) {
                 console.log('Directions data:', data);
-                data.directions.forEach(function(direction) {
+                data.directions.forEach(function (direction) {
                     $('#direction-options').append(`<div><input type="checkbox" class="direction-option" value="${direction.value}"> ${direction.value}</div>`);
                 });
-                data.post_directions.forEach(function(postDirection) {
+                data.post_directions.forEach(function (postDirection) {
                     $('#post-direction-options').append(`<div><input type="checkbox" class="post-direction-option" value="${postDirection.value}"> ${postDirection.value}</div>`);
                 });
             },
-            error: function(xhr, status, error) {
+            error: function (xhr, status, error) {
                 console.error('Error fetching direction options:', error);
             }
         });
@@ -180,13 +200,13 @@ $(document).ready(function() {
         $.ajax({
             url: '/advanced_search/street_types',
             method: 'GET',
-            success: function(data) {
+            success: function (data) {
                 console.log('Street Types data:', data);
-                data.street_types.forEach(function(streetType) {
+                data.street_types.forEach(function (streetType) {
                     $('#street-type-options').append(`<div><input type="checkbox" class="street-type-option" value="${streetType.value}"> ${streetType.value}</div>`);
                 });
             },
-            error: function(xhr, status, error) {
+            error: function (xhr, status, error) {
                 console.error('Error fetching street type options:', error);
             }
         });
@@ -264,6 +284,15 @@ $(document).ready(function() {
         $('#header-month').val(('0' + (current_date.getMonth() + 1)).slice(-2));
         $('#header-day').val(''); // Leave Day empty
         $('#header-year').val(current_date.getFullYear());
+    }
+
+    function showNotification(message, type) {
+        $('#notification').removeClass().addClass(`alert alert-${type}`).text(message).fadeIn();
+
+        // Auto-hide notification after 3 seconds
+        setTimeout(function() {
+            $('#notification').fadeOut();
+        }, 3000);
     }
 
     // Automatically focus on "First Name" field when document is ready

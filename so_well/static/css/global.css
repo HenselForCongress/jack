@@ -66,3 +66,15 @@
     display: inline;
     margin: 0 10px;
 }
+
+/* Notifications */
+
+#notification {
+    display: none;           /* Initially hidden */
+    position: fixed;         /* Fixed position on the screen */
+    top: 1rem;               /* Distance from the top */
+    left: 50%;               /* Center horizontally */
+    transform: translateX(-50%); /* Centering adjustment */
+    z-index: 1050;           /* Ensure it overlays other elements */
+    width: auto;
+}

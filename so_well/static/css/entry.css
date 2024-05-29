@@ -6,12 +6,20 @@
 }
 
 .container-fluid {
-    margin: 20px;
+    margin: .1%;
+    max-width: 100%;
 }
 
 .form-container {
     max-height: calc(100vh - 60px);  /* Adjust according to header height */
     overflow-y: auto;
+    max-width: 95%;
+
+}
+
+.form-group{
+    font-size: inherit;
+
 }
 
 .search-section {
