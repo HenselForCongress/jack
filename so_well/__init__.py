@@ -68,10 +68,10 @@ def begin_era():
     zero_trust = os.getenv('ZERO_TRUST', 'false').lower() == 'true'
     if zero_trust:
         app.before_request(cloudflare_auth_middleware())
-        logger.info("Zero Trust authentication enabled.")
+        #logger.info("Zero Trust authentication enabled.")
     else:
         app.before_request(cloudflare_auth_middleware())
-        logger.info("Zero Trust authentication disabled. Using placeholder authentication.")
+        #logger.info("Zero Trust authentication disabled. Using placeholder authentication.")
 
     configure_logger()
 

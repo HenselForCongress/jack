@@ -3,7 +3,7 @@
 
 :root {
     /* Colors */
-    --color-green: #a4d037;
+    --color-green: seagreen;
     --color-yellow: #fecd35;
     --color-red: #f05230;
     --color-darkgrey: #15171a;
@@ -27,7 +27,7 @@
 }
 
 .header-bar {
-    background-color: #007bff;
+    background-color: var(--color-green);
     padding: 15px;
     color: white;
     margin-bottom: 20px;

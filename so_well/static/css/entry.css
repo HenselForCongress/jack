@@ -21,7 +21,7 @@
 
 .clickable-label {
     cursor: pointer;
-    color: #007bff;
+    color: var(--color-primary-blue);
 }
 
 .dropdown-options {

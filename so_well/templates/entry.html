@@ -16,6 +16,9 @@
 
             <label for="header-year" class="my-1 mr-2">Year</label>
             <input type="text" class="form-control mb-2 mr-sm-2" id="header-year" placeholder="YYYY">
+
+            <button type="button" class="btn btn-primary mb-2 mr-sm-2" id="open-sheets-button">Tracking Sheet</button>
+
         </div>
     </div>
 </div>
@@ -209,6 +212,15 @@
         </div>
     </div>
 </div>
+
+<script>
+document.getElementById('open-sheets-button').addEventListener('click', function() {
+    const sheetNumber = document.getElementById('header-sheet-number').value;
+    const url = `/sheets/lookup/?sheet_id=${sheetNumber}`;
+    window.open(url, '_blank');
+});
+</script>
+
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
