@@ -92,6 +92,7 @@ $(document).ready(function () {
     // Listen for the Enter key on the match modal and trigger submit
     $('#match-modal').keypress(function(e) {
         if (e.which === 13) { // Enter key
+            e.preventDefault();
             if (validateMatchForm()) {
                 submitMatchForm();
             }
@@ -326,6 +327,29 @@ $(document).ready(function () {
                 </tr>`;
                 tbody.append(row);
             });
+
+            // Focus on the first match button if there are 5 or fewer results
+            if (results.length <= 5) {
+                let matchButtons = $('button.btn-match');
+                matchButtons.first().focus();
+
+                // Make sure to allow tabbing through match buttons and then back to the first name field
+                matchButtons.on('keydown', function (e) {
+                    if (e.which === 9) { // Tab key
+                        e.preventDefault();
+                        let currentIndex = matchButtons.index(this);
+                        if (e.shiftKey) {
+                            // If Shift + Tab, move backwards
+                            currentIndex = (currentIndex === 0) ? matchButtons.length : currentIndex;
+                            matchButtons.eq(currentIndex - 1).focus();
+                        } else {
+                            // Move forward
+                            currentIndex = (currentIndex === matchButtons.length - 1) ? -1 : currentIndex;
+                            matchButtons.eq(currentIndex + 1).focus();
+                        }
+                    }
+                });
+            }
         }
     }
 
