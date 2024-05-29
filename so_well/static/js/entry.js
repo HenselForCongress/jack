@@ -7,7 +7,7 @@ $(document).ready(function() {
     fetchDirectionOptions();
     fetchStreetTypeOptions();
 
-    // Prepopulate the date fields with the current date
+    // Prepopulate the date fields with the current date, but do not set the Day value
     prepopulateDateFields();
 
     // Handle form submission and search
@@ -32,7 +32,7 @@ $(document).ready(function() {
 
         // Pre-populate the date-collected field
         let month = $('#header-month').val();
-        let day = $('#header-day').val();
+        let day = $('#header-day').val() || '01'; // Use '01' if day is empty
         let year = $('#header-year').val();
         let collectedDate = null;
 
@@ -45,6 +45,12 @@ $(document).ready(function() {
         }
 
         $('#date-collected').val(collectedDate);
+    });
+
+    $('#match-modal').on('show.bs.modal', function () {
+        // Auto-increment row number
+        let lastRowNumber = parseInt($('.last-row-number').last().text()) || 0;
+        $('#row-number').val(lastRowNumber + 1);
     });
 
     $('#match-form').on('submit', function(e) {
@@ -68,6 +74,9 @@ $(document).ready(function() {
                 $('#match-modal').modal('hide');
                 alert('Successfully recorded!');
                 resetFormFields(); // Clear the form fields after successful submission
+
+                // Automatically focus on "First Name" field
+                $('#first-name').focus();
             },
             error: function(xhr, status, error) {
                 console.error('Error recording match:', error);
@@ -104,6 +113,9 @@ $(document).ready(function() {
                 $('#not-found-modal').modal('hide');
                 alert('Successfully recorded!');
                 resetFormFields(); // Clear the search form fields
+
+                // Automatically focus on "First Name" field
+                $('#first-name').focus();
             },
             error: function(xhr, status, error) {
                 console.error('Error recording Not Found:', error);
@@ -217,6 +229,7 @@ $(document).ready(function() {
                     <td>${voter.state}</td>
                     <td>${voter.zip_code}</td>
                     <td>${voter.status}</td>
+                    <td class="last-row-number" style="display: none;">${voter.identification_number}</td>
                     <td><button class="btn btn-primary btn-match" data-voter='${JSON.stringify(voter)}'>Match</button></td>
                 </tr>`;
                 tbody.append(row);
@@ -227,14 +240,20 @@ $(document).ready(function() {
     function resetFormFields() {
         console.log("Resetting form fields");
         $('#search-form').trigger("reset");
+
+        // Automatically focus on "First Name" field
+        $('#first-name').focus();
     }
 
     function prepopulateDateFields() {
         let current_date = new Date();
         $('#header-month').val(('0' + (current_date.getMonth() + 1)).slice(-2));
-        $('#header-day').val(('0' + current_date.getDate()).slice(-2));
+        $('#header-day').val(''); // Leave Day empty
         $('#header-year').val(current_date.getFullYear());
     }
+
+    // Automatically focus on "First Name" field when document is ready
+    $('#first-name').focus();
 
     // Prepopulate with default values on page load
     prepopulateDateFields();
