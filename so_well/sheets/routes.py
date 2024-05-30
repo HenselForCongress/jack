@@ -40,6 +40,19 @@ def show_sheets():
 
 # Lookup Sheets
 # Fetch Data Route
+@sheets_bp.route('/lookup/', methods=['GET'])
+def sheet_lookup():
+    sheet_id = request.args.get('sheet_id')
+    if not sheet_id:
+        # Fetch the most recent sheet_id from signatures.collected
+        most_recent_sheet = db.session.query(SignatureMatch.sheet_id).order_by(SignatureMatch.created_at.desc()).first()
+        if most_recent_sheet:
+            sheet_id = most_recent_sheet[0]
+        else:
+            return jsonify({"error": "No sheets found"}), 400
+
+    return render_template('sheet_lookup.html', sheet_id=sheet_id)
+
 @sheets_bp.route('/lookup/fetch_data', methods=['GET'])
 def lookup_fetch_data():
     sheet_number = request.args.get('sheet_id')
@@ -52,15 +65,6 @@ def lookup_fetch_data():
     except Exception as e:
         logger.error(f"Error fetching data for sheet {sheet_number}: {str(e)}", exc_info=True)
         return jsonify({'error': 'Failed to fetch data'}), 500
-
-# Sheet Lookup
-@sheets_bp.route('/lookup/', methods=['GET'])
-def sheet_lookup():
-    sheet_id = request.args.get('sheet_id')
-    if not sheet_id:
-        return jsonify({"error": "Missing sheet_id parameter"}), 400
-
-    return render_template('sheet_lookup.html', sheet_id=sheet_id)
 
 @sheets_bp.route('/notaries', methods=['GET'])
 def get_notaries():
@@ -151,87 +155,87 @@ def close_sheet():
         return jsonify({'error': 'An error occurred while closing the sheet.'}), 500
 
 def fetch_sheet_data(sheet_number):
-    search_query = text("""
-        SELECT
-            row_id AS row,
-            voter_id AS "voterId",
-            first_name AS "firstName",
-            last_name AS "lastName",
-            full_street_address AS "address1",
-            apt AS "address2",
-            city,
-            state,
-            zip,
-            date_collected AS "dateSigned",
-            last_4 AS "ssnLast4"
-        FROM
-            signatures.collected
-        WHERE
-            sheet_id = :sheet_id
-        ORDER BY
-            row_id;
-    """)
+        search_query = text("""
+            SELECT
+                row_id AS row,
+                voter_id AS "voterId",
+                first_name AS "firstName",
+                last_name AS "lastName",
+                full_street_address AS "address1",
+                apt AS "address2",
+                city,
+                state,
+                zip,
+                date_collected AS "dateSigned",
+                last_4 AS "ssnLast4"
+            FROM
+                signatures.collected
+            WHERE
+                sheet_id = :sheet_id
+            ORDER BY
+                row_id;
+        """)
 
-    sheet_query = text("""
-        SELECT
-            s.notarized_on,
-            c.full_name AS circulator_name,
-            c.address_1 AS circulator_address_1,
-            c.address_2 AS circulator_address_2,
-            c.city AS circulator_city,
-            c.state AS circulator_state,
-            c.zip AS circulator_zip,
-            n.full_name AS notary_name,
-            n.registration_number AS notary_registration,
-            n.commission_expiration AS notary_expiration,
-            n.commission_state AS notary_state
-        FROM
-            signatures.sheets s
-        LEFT JOIN
-            signatures.circulators c ON s.collector_id = c.id
-        LEFT JOIN
-            signatures.notaries n ON s.notary_id = n.id
-        WHERE
-            s.id = :sheet_id;
-    """)
-    def serialize_date(value):
-        return value.isoformat() if isinstance(value, date) else value
+        sheet_query = text("""
+            SELECT
+                s.notarized_on,
+                c.full_name AS circulator_name,
+                c.address_1 AS circulator_address_1,
+                c.address_2 AS circulator_address_2,
+                c.city AS circulator_city,
+                c.state AS circulator_state,
+                c.zip AS circulator_zip,
+                n.full_name AS notary_name,
+                n.registration_number AS notary_registration,
+                n.commission_expiration AS notary_expiration,
+                n.commission_state AS notary_state
+            FROM
+                signatures.sheets s
+            LEFT JOIN
+                signatures.circulators c ON s.collector_id = c.id
+            LEFT JOIN
+                signatures.notaries n ON s.notary_id = n.id
+            WHERE
+                s.id = :sheet_id;
+        """)
+        def serialize_date(value):
+            return value.isoformat() if isinstance(value, date) else value
 
-    data_result = db.session.execute(search_query, {'sheet_id': sheet_number})
-    data = [dict(row) for row in data_result.mappings()]
+        data_result = db.session.execute(search_query, {'sheet_id': sheet_number})
+        data = [dict(row) for row in data_result.mappings()]
 
-    sheet_result = db.session.execute(sheet_query, {'sheet_id': sheet_number})
-    sheet_info = sheet_result.fetchone()
+        sheet_result = db.session.execute(sheet_query, {'sheet_id': sheet_number})
+        sheet_info = sheet_result.fetchone()
 
-    data_dict = {entry['row']: entry for entry in data}
-    full_data = []
-    for i in range(1, 13):
-        if i in data_dict:
-            entry = data_dict[i]
-            entry['dateSigned'] = serialize_date(entry['dateSigned'])
-            full_data.append(entry)
-        else:
-            full_data.append({
-                'row': i,
-                'voterId': '',
-                'firstName': '',
-                'lastName': '',
-                'address1': '',
-                'address2': '',
-                'city': '',
-                'state': '',
-                'zip': '',
-                'dateSigned': '',
-                'ssnLast4': ''
-            })
+        data_dict = {entry['row']: entry for entry in data}
+        full_data = []
+        for i in range(1, 13):
+            if i in data_dict:
+                entry = data_dict[i]
+                entry['dateSigned'] = serialize_date(entry['dateSigned'])
+                full_data.append(entry)
+            else:
+                full_data.append({
+                    'row': i,
+                    'voterId': '',
+                    'firstName': '',
+                    'lastName': '',
+                    'address1': '',
+                    'address2': '',
+                    'city': '',
+                    'state': '',
+                    'zip': '',
+                    'dateSigned': '',
+                    'ssnLast4': ''
+                })
 
-    sheet_info_dict = {column: serialize_date(value) for column, value in zip(sheet_result.keys(), sheet_info)} if sheet_info else {}
+        sheet_info_dict = {column: serialize_date(value) for column, value in zip(sheet_result.keys(), sheet_info)} if sheet_info else {}
 
-    response = {
-        'data': full_data,
-        'sheet_info': sheet_info_dict
-    }
-    return response
+        response = {
+            'data': full_data,
+            'sheet_info': sheet_info_dict
+        }
+        return response
 
 @sheets_bp.route('/get_max_row_number', methods=['GET'])
 def get_max_row_number():

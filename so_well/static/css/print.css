@@ -38,7 +38,7 @@ th, td {
 
 th {
     background-color: white;
-    color: #569edb;
+    color: var(--color-virginia-blue);
 }
 
 tbody tr:nth-child(odd) td:not(.row-number) {
@@ -50,14 +50,14 @@ tbody tr:nth-child(even) td:not(.row-number) {
 }
 
 td.row-number-even {
-    color: #569edb;
+    color: var(--color-virginia-blue);
     font-weight: bold;
     text-align: center;
     background-color: white;
 }
 
 td.row-number-odd {
-    background-color: #569edb;
+    background-color: var(--color-virginia-blue);
     color: white;
     font-weight: bold;
     text-align: center;
@@ -91,7 +91,7 @@ td.left {
 
 .circulator h3, .notary h3 {
     margin-top: 0;
-    color: #569edb;
+    color: var(--color-virginia-blue);
     font-size: 14px;
 }
 

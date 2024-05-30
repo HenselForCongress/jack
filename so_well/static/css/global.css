@@ -14,6 +14,7 @@
     --color-wash: #e5eff5;
     --color-darkmode: #151719;
     --color-primary-blue: #3066BD;
+    --color-virginia-blue: #569edb;
 
     /* Area Specific Colors */
     --color-footer: var(--color-primary-blue);
