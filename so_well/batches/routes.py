@@ -1,9 +1,9 @@
 # so_well/batches/routes.py
 from flask import Blueprint, render_template, request, jsonify
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy import func, case
+from sqlalchemy import func, case, join
 from ..models import db
-from ..sheets.models import Sheet
+from ..sheets.models import Sheet, Circulator
 from ..signatures.models import SignatureMatch
 from ..batches.models import Batch, BatchStatus
 from ..utils import logger
@@ -15,7 +15,30 @@ batches_bp = Blueprint('batches', __name__, url_prefix='/batches')
 def show_batches():
     try:
         logger.info('Fetching sheets with Closed status')
-        closed_sheets = Sheet.query.filter_by(status='Closed').all()
+
+        closed_sheets_query = db.session.query(
+            Sheet.id,
+            func.count(SignatureMatch.id).label('total_signatures'),
+            func.sum(case((SignatureMatch.voter_id.isnot(None), 1), else_=0)).label('valid_signatures'),
+            (func.sum(case((SignatureMatch.voter_id.isnot(None), 1), else_=0)) / func.count(SignatureMatch.id) * 100).label('match_rate'),
+            Circulator.full_name.label('circulator_name'),
+            func.max(SignatureMatch.date_collected).label('max_signed_on')
+        ).join(SignatureMatch, SignatureMatch.sheet_id == Sheet.id).join(
+            Circulator, Circulator.id == Sheet.collector_id, isouter=True
+        ).filter(Sheet.status == 'Closed').group_by(Sheet.id, Circulator.full_name).all()
+
+        closed_sheets = [
+            {
+                'id': sheet.id,
+                'total_signatures': sheet.total_signatures,
+                'valid_signatures': sheet.valid_signatures,
+                'match_rate': sheet.match_rate,
+                'circulator_name': sheet.circulator_name,
+                'max_signed_on': sheet.max_signed_on.strftime('%Y-%m-%d') if sheet.max_signed_on else None
+            }
+            for sheet in closed_sheets_query
+        ]
+
         building_batch = Batch.query.filter_by(status='Building').one_or_none()
 
         batch_sheets = []

@@ -12,7 +12,12 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th>Sheet Number</th>
+                        <th>Sheet</th>
+                        <th>Total</th>
+                        <th>Valid</th>
+                        <th>Match Rate (%)</th>
+                        <th>Circulator</th>
+                        <th>Signed On</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -20,6 +25,11 @@
                     {% for sheet in closed_sheets %}
                     <tr>
                         <td>{{ sheet.id }}</td>
+                        <td>{{ sheet.total_signatures }}</td>
+                        <td>{{ sheet.valid_signatures }}</td>
+                        <td>{{ "%.2f" | format(sheet.match_rate) }}</td>
+                        <td>{{ sheet.circulator_name }}</td>
+                        <td>{{ sheet.max_signed_on }}</td>
                         <td>
                             <button class="btn btn-success add-to-batch" data-sheet-id="{{ sheet.id }}">Add to Current Batch</button>
                         </td>
@@ -29,6 +39,7 @@
             </table>
         </div>
     </div>
+
 
     <div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
