@@ -10,7 +10,6 @@ from ..utils import logger
 
 batches_bp = Blueprint('batches', __name__, url_prefix='/batches')
 
-
 @batches_bp.route('/', methods=['GET'])
 def show_batches():
     try:
@@ -44,27 +43,33 @@ def show_batches():
         batch_sheets = []
         total_signatures = 0
         total_valid_signatures = 0
+        sheet_count = 0  # Initialize sheet count
 
         if building_batch:
             logger.info('Fetching sheets in current Building batch')
             batch_sheets_query = db.session.query(
                 Sheet.id.label('sheet_number'),
                 db.func.count(SignatureMatch.id).label('total_signatures'),
-                db.func.sum(case((SignatureMatch.voter_id.isnot(None), 1), else_=0)).label('valid_signatures')
-            ).join(SignatureMatch, SignatureMatch.sheet_id == Sheet.id).filter(
-                Sheet.batch_id == building_batch.id
-            ).group_by(Sheet.id).all()
+                db.func.sum(case((SignatureMatch.voter_id.isnot(None), 1), else_=0)).label('valid_signatures'),
+                Circulator.full_name.label('circulator_name'),
+                func.max(SignatureMatch.date_collected).label('max_signed_on')
+            ).join(SignatureMatch, SignatureMatch.sheet_id == Sheet.id).join(
+                Circulator, Circulator.id == Sheet.collector_id, isouter=True
+            ).filter(Sheet.batch_id == building_batch.id).group_by(Sheet.id, Circulator.full_name).all()
 
             for row in batch_sheets_query:
                 sheet = {
                     'sheet_number': row.sheet_number,
                     'total_signatures': row.total_signatures,
                     'valid_signatures': row.valid_signatures,
-                    'valid_rate': (row.valid_signatures / row.total_signatures) * 100 if row.total_signatures > 0 else 0
+                    'valid_rate': (row.valid_signatures / row.total_signatures) * 100 if row.total_signatures > 0 else 0,
+                    'circulator_name': row.circulator_name,
+                    'max_signed_on': row.max_signed_on.strftime('%Y-%m-%d') if row.max_signed_on else None
                 }
                 batch_sheets.append(sheet)
                 total_signatures += row.total_signatures
                 total_valid_signatures += row.valid_signatures
+                sheet_count += 1  # Increment sheet count
 
         return render_template(
             'batches.html',
@@ -73,7 +78,8 @@ def show_batches():
             batch_sheets=batch_sheets,
             total_signatures=total_signatures,
             total_valid_signatures=total_valid_signatures,
-            total_valid_rate=(total_valid_signatures / total_signatures) * 100 if total_signatures > 0 else 0
+            total_valid_rate=(total_valid_signatures / total_signatures) * 100 if total_signatures > 0 else 0,
+            sheet_count=sheet_count  # Pass the sheet count to the template
         )
     except SQLAlchemyError as e:
         logger.error('Database error: %s', e)

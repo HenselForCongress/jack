@@ -15,7 +15,7 @@
                         <th>Sheet</th>
                         <th>Total</th>
                         <th>Valid</th>
-                        <th>Match Rate (%)</th>
+                        <th>Valid Rate (%)</th>
                         <th>Circulator</th>
                         <th>Signed On</th>
                         <th>Action</th>
@@ -39,7 +39,6 @@
             </table>
         </div>
     </div>
-
 
     <div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -81,13 +80,16 @@
         <div class="card-body">
             {% if building_batch %}
             <h5>Batch ID: {{ building_batch.id }}</h5>
+            <h5>Sheet Count: {{ sheet_count }}</h5> <!-- Display the sheet count -->
             <table class="table">
                 <thead>
                     <tr>
-                        <th>Sheet Number</th>
-                        <th>Total Signatures</th>
-                        <th>Valid Signatures</th>
+                        <th>Sheet</th>
+                        <th>Total</th>
+                        <th>Valid</th>
                         <th>Valid Rate (%)</th>
+                        <th>Circulator</th>
+                        <th>Signed On</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -97,6 +99,8 @@
                         <td>{{ sheet.total_signatures }}</td>
                         <td>{{ sheet.valid_signatures }}</td>
                         <td>{{ "%.2f" | format(sheet.valid_rate) }}</td>
+                        <td>{{ sheet.circulator_name }}</td>
+                        <td>{{ sheet.max_signed_on }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

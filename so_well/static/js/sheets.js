@@ -38,36 +38,39 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 5000);
     }
 
-    document.getElementById('distribute-status').addEventListener('click', async function() {
-        const sheetNumber = document.getElementById('distribute-sheet-number').value;
-        const response = await fetch('/sheets/update_sheet_status', {
+    function resetFieldAndFocus(inputId) {
+        const inputElement = document.getElementById(inputId);
+        inputElement.value = '';
+        inputElement.focus();
+    }
+
+    async function updateStatus(endpoint, sheetNumber, newStatus, notificationId, buttonId) {
+        const response = await fetch(endpoint, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ sheet_number: sheetNumber, new_status: 'Signing' })
+            body: JSON.stringify({ sheet_number: sheetNumber, new_status: newStatus })
         });
 
         const data = await response.json();
-        const message = data.success ? `Sheet ${sheetNumber} transitioned to Signing` : (data.error || 'Failed to update sheet status');
+        const message = data.success ? `Sheet ${sheetNumber} transitioned to ${newStatus}` : (data.error || 'Failed to update sheet status');
         const type = data.success ? 'success' : 'danger';
-        showNotification('distribute-notification', message, type);
+        showNotification(notificationId, message, type);
+
+        if (data.success) {
+            resetFieldAndFocus(buttonId);
+        }
+    }
+
+    document.getElementById('distribute-status').addEventListener('click', function() {
+        const sheetNumber = document.getElementById('distribute-sheet-number').value;
+        updateStatus('/sheets/update_sheet_status', sheetNumber, 'Signing', 'distribute-notification', 'distribute-sheet-number');
     });
 
-    document.getElementById('intake-status').addEventListener('click', async function() {
+    document.getElementById('intake-status').addEventListener('click', function() {
         const sheetNumber = document.getElementById('intake-sheet-number').value;
-        const response = await fetch('/sheets/update_sheet_status', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ sheet_number: sheetNumber, new_status: 'Summarizing' })
-        });
-
-        const data = await response.json();
-        const message = data.success ? `Sheet ${sheetNumber} transitioned to Summarizing` : (data.error || 'Failed to update sheet status');
-        const type = data.success ? 'success' : 'danger';
-        showNotification('intake-notification', message, type);
+        updateStatus('/sheets/update_sheet_status', sheetNumber, 'Summarizing', 'intake-notification', 'intake-sheet-number');
     });
 
     document.getElementById('close-sheet').addEventListener('click', async function() {
@@ -99,5 +102,20 @@ document.addEventListener('DOMContentLoaded', function() {
         const message = data.success ? `Sheet ${sheetId} closed successfully` : (data.error || 'Failed to close sheet');
         const type = data.success ? 'warning' : 'danger';
         showNotification('close-notification', message, type);
+
+        if (data.success) {
+            ['close-sheet-number', 'notary-selector', 'notarized-date', 'circulator-selector'].forEach(resetFieldAndFocus);
+        }
+    });
+
+    ['#distribute-sheet-number', '#intake-sheet-number', '#close-sheet-number'].forEach(selector => {
+        document.querySelector(selector).addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                const buttonId = selector === '#distribute-sheet-number' ? 'distribute-status' :
+                                 selector === '#intake-sheet-number' ? 'intake-status' : 'close-sheet';
+                document.getElementById(buttonId).click();
+            }
+        });
     });
 });
