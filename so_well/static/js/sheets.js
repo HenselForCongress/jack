@@ -1,5 +1,6 @@
 // so_well/static/js/sheets.js
 document.addEventListener('DOMContentLoaded', function() {
+    // Fetch notaries and circulators
     async function fetchOptions() {
         try {
             const notaryResp = await fetch('/sheets/notaries');
@@ -28,6 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     fetchOptions();
 
+    // Function to show notifications
     function showNotification(elementId, message, type) {
         const notification = document.getElementById(elementId);
         notification.style.display = 'block';
@@ -38,12 +40,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 5000);
     }
 
+    // Function to reset a field and focus on it
     function resetFieldAndFocus(inputId) {
         const inputElement = document.getElementById(inputId);
         inputElement.value = '';
         inputElement.focus();
     }
 
+    // Function to update the sheet status
     async function updateStatus(endpoint, sheetNumber, newStatus, notificationId, buttonId) {
         const response = await fetch(endpoint, {
             method: 'POST',
@@ -63,6 +67,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Attach event listeners to buttons
     document.getElementById('distribute-status').addEventListener('click', function() {
         const sheetNumber = document.getElementById('distribute-sheet-number').value;
         updateStatus('/sheets/update_sheet_status', sheetNumber, 'Signing', 'distribute-notification', 'distribute-sheet-number');
@@ -73,6 +78,7 @@ document.addEventListener('DOMContentLoaded', function() {
         updateStatus('/sheets/update_sheet_status', sheetNumber, 'Summarizing', 'intake-notification', 'intake-sheet-number');
     });
 
+    // Modified close-sheet functionality to only reset the sheet number field
     document.getElementById('close-sheet').addEventListener('click', async function() {
         const sheetId = document.getElementById('close-sheet-number').value;
         const notaryId = document.getElementById('notary-selector').value;
@@ -104,10 +110,12 @@ document.addEventListener('DOMContentLoaded', function() {
         showNotification('close-notification', message, type);
 
         if (data.success) {
-            ['close-sheet-number', 'notary-selector', 'notarized-date', 'circulator-selector'].forEach(resetFieldAndFocus);
+            // Only reset the sheet number field and focus on it
+            resetFieldAndFocus('close-sheet-number');
         }
     });
 
+    // Add event listeners for Enter key
     ['#distribute-sheet-number', '#intake-sheet-number', '#close-sheet-number'].forEach(selector => {
         document.querySelector(selector).addEventListener('keyup', function(event) {
             if (event.key === 'Enter') {
