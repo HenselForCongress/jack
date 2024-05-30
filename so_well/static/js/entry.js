@@ -209,12 +209,22 @@ $(document).ready(function () {
     }
 
     function getNextAvailableRowNumber(rowNumbers) {
+        if (rowNumbers.length === 0) {
+            return 1;
+        }
+
+        let highestOccupiedRow = Math.max(...rowNumbers);
+        for (let i = highestOccupiedRow + 1; i <= 12; i++) {
+            if (!rowNumbers.includes(i)) {
+                return i;
+            }
+        }
         for (let i = 1; i <= 12; i++) {
             if (!rowNumbers.includes(i)) {
                 return i;
             }
         }
-        return 12; // Fallback to 12 if somehow all rows 1-11 are taken.
+        return 1; // Fallback to 1 if all rows are taken.
     }
 
     function fetchStateOptions() {
