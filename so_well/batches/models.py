@@ -15,6 +15,8 @@ class Batch(db.Model):
     arrival_date = db.Column(db.Date, nullable=True)
     created_at = db.Column(db.DateTime, default=func.now(), nullable=False)
     updated_at = db.Column(db.DateTime, default=func.now(), onupdate=func.now(), nullable=False)
+    notes = db.Column(db.String(), nullable=True)
+    official_count = db.Column(db.Integer, nullable=True)
 
     sheets = relationship('Sheet', backref=backref('batch', lazy=True))
 
