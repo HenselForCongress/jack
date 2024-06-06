@@ -167,11 +167,10 @@ $(document).ready(function () {
                 console.log("Not Found recorded successfully");
                 $('#not-found-modal').modal('hide');
                 showNotification('Successfully recorded!', 'success');
+                resetNotFoundFormFields(); // Clear the form fields after successful submission
 
-                // Reset the form fields, preserving sheet number and date
-                $('#not-found-form').trigger("reset");
-                $('#nf-sheet-number').val($('#header-sheet-number').val());
-                $('#nf-date-signed').val($('#header-year').val() + '-' + $('#header-month').val().padStart(2, '0') + '-01');
+                // Automatically focus on "First Name" field on the main form
+                $('#first-name').focus();
             },
             error: function (xhr, status, error) {
                 console.error('Error recording Not Found:', error);
@@ -369,6 +368,13 @@ $(document).ready(function () {
 
         // Automatically focus on "First Name" field
         $('#first-name').focus();
+    }
+
+    function resetNotFoundFormFields() {
+        console.log("Resetting not found form fields");
+        $('#not-found-form').trigger("reset");
+        $('#nf-sheet-number').val($('#header-sheet-number').val());
+        $('#nf-date-signed').val($('#header-year').val() + '-' + $('#header-month').val().padStart(2, '0') + '-01');
     }
 
     function prepopulateDateFields() {

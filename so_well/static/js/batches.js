@@ -76,4 +76,20 @@ document.addEventListener('DOMContentLoaded', function() {
             showNotification(data.error || 'Failed to ship the batch', 'danger');
         }
     });
+
+    document.getElementById('create-batch').addEventListener('click', async function() {
+        console.log('Create Batch button clicked'); // Debugging statement
+        const response = await fetch('/batches/create_batch', { method: 'POST' });
+
+        const data = await response.json();
+        console.log('Response from server:', data); // Debugging statement
+        if (data.success) {
+            showNotification(`Batch ${data.batch_id} created`, 'success');
+            setTimeout(function() {
+                location.reload();
+            }, 500);
+        } else {
+            showNotification(data.error || 'Failed to create the batch', 'danger');
+        }
+    });
 });

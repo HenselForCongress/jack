@@ -24,7 +24,7 @@ def show_batches():
             func.max(SignatureMatch.date_collected).label('max_signed_on')
         ).join(SignatureMatch, SignatureMatch.sheet_id == Sheet.id).join(
             Circulator, Circulator.id == Sheet.collector_id, isouter=True
-        ).filter(Sheet.status == 'Closed').group_by(Sheet.id, Circulator.full_name).all()
+        ).filter(Sheet.status == 'Closed').group_by(Sheet.id, Circulator.full_name).order_by(Sheet.id.asc()).all()
 
         closed_sheets = [
             {
@@ -161,3 +161,20 @@ def ship_batch():
     except SQLAlchemyError as e:
         logger.error('Database error: %s', e)
         return jsonify({'error': 'An error occurred while shipping the batch.'}), 500
+
+
+@batches_bp.route('/create_batch', methods=['POST'])
+def create_batch():
+    try:
+        logger.info('Attempting to create a new batch with status "Building"')
+        batch = Batch(status='Building')
+        db.session.add(batch)
+        db.session.commit()
+        logger.info('Batch %s created', batch.id)
+        return jsonify({'success': True, 'batch_id': batch.id})
+    except SQLAlchemyError as e:
+        logger.error('Database error: %s', e)
+        return jsonify({'error': 'An error occurred while creating the batch.'}), 500
+    except Exception as e:
+        logger.error('Unexpected error: %s', e)
+        return jsonify({'error': 'An unexpected error occurred while creating the batch.'}), 500
